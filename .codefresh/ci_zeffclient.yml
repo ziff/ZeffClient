@@ -25,4 +25,5 @@ steps:
     title: Running Unit tests
     image: ${{ZeffClientImage}}
     working_directory: ${{CloneZeffClient}}
-    command: 'python setup.py test'
+    commands:
+      - python setup.py test
