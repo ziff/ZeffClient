@@ -21,6 +21,8 @@ class LoggingReporterTestCase(unittest.TestCase):
         self.record = "TEST RECORD"
         self.error = ValueError("TEST EXECEPTION")
 
+    def test_force_failure(self):
+        self.assertTrue(False)
 
     def test_generated(self):
         """Generated record is logged to logger INFO level."""
