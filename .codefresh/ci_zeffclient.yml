@@ -1,0 +1,28 @@
+version: "1.0"
+stages:
+  - "clone"
+  - "build"
+  - "test"
+  - "integration"
+  - "push"
+steps:
+  CloneZeffClient:
+    type: "git-clone"
+    stage: "clone"
+    description: "Cloning main repository..."
+    repo: "ziff/ZeffClient"
+    revision: "${{CF_BRANCH}}"
+  ZeffClientImage:
+    type: "build"
+    stage: "build"
+    title: "Building ZeffClient Docker Image"
+    image_name: "ziff/ZeffClient"
+    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
+    working_directory: ${{CloneZeffClient}}
+    dockerfile: tests/Dockerfile          
+  UnitTests:
+    stage: "test"
+    title: Running Unit tests
+    image: ${{ZeffClientImage}}
+    working_directory: ${{CloneZeffClient}}
+    command: 'python setup.py test'

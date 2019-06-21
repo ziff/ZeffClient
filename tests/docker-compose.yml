@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+
+    zeffclient:
+        build:
+            context: ../
+            dockerfile: tests/Dockerfile
+
+    zeffclient_unittests:
+        build: ../
+        depends_on:
+            - zeffclient
+        command: python setup.py test
+
