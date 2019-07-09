@@ -20,7 +20,7 @@ For this example we will use a URL that identifies the CSV file to
 access with a query section that gives the id of the row that we will
 use:
 
-   ``file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678``
+   ``file:///<ZeffClient>/share/zeff-example/record/yaml/properties.yml?id=1395678``
 
 The ``ZeffClient`` must be replaced with the path to the ZeffClient
 repository that you cloned.
@@ -33,7 +33,7 @@ Record Builder
 
 1. Setup development environment: see ``<ZeffClient>/share/zeff-example/README.rst``.
 
-2. ``cd <ZeffClient>/share/zeff-example/record/csv/``
+2. ``cd <ZeffClient>/share/zeff-example/record/yaml/``
 
 3. ``zeff template --help``
    This will show the various options availalble when working with
@@ -60,17 +60,17 @@ Record Builder
 
 5. Directory structure:
 
-   A. The CSV information is contained in ``./properties.csv``.
+   A. The CSV information is contained in ``./properties.yml``.
 
    B. Images that will be added to the record are in ``./images_1395678``.
 
-6. ``python house_price_record_builder.py "file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678`` should show the following
+6. ``python house_price_record_builder.py "file:///<ZeffClient>/share/zeff-example/record/yaml/properties.yml?id=1395678`` should show the following
    output:
 
    ::
 
-      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
-      INFO:zeffclient.record_builder:End building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
+      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/yaml/properties.yml?id=1395678
+      INFO:zeffclient.record_builder:End building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/yaml/properties.yml?id=1395678
       ======================
       Record(name='Example')
       ======================
@@ -103,7 +103,7 @@ Record Builder
 
 9. Add structured items to the record:
 
-   A. In the ``import`` section add ``import csv``.
+   A. In the ``import`` section add ``import yaml``.
 
    B. In ``def __call__(...)`` replace ``# Your record build code goes here``
       with:
@@ -118,8 +118,8 @@ Record Builder
 
          def add_structured_items(self, record, path, id):
              row = None
-             with open(path, 'r') as csvfile:
-                 row = [r for r in csv.DictReader(csvfile) if r['id'] == id]
+             with open(path, 'r') as ymlstream:
+                 row = [r for r in yaml.load(ymlstream) if r['id'] == id]
                  if len(row) == 0:
                      return
                  row = row[0]
