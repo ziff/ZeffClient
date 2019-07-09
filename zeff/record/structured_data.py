@@ -57,22 +57,22 @@ class StructuredDataItem:
 
     name: str
     value: object
-    target: Target
     data_type: DataType
+    target: Target = Target.NO
 
     def validate(self):
         """Validate to ensure that it will be accepted on upload."""
         if self.target not in StructuredDataItem.Target:
             raise TypeError(
-                "StructuredDataItem.target is not a StructuredDataItem.Target"
+                f"StructuredDataItem.target `{self.target}` is not a StructuredDataItem.Target"
             )
         if self.data_type not in StructuredDataItem.DataType:
-            raise TypeError(
-                "StructuredDataItem.data_type is not a StructuredDataItem.DataType"
-            )
+            raise TypeError(f"data_type `{self.data_type}` is not DataType")
         if self.data_type == StructuredDataItem.DataType.CONTINUOUS:
             if not isinstance(self.value, (int, float)):
-                raise ValueError("StructuredDataItem.value is not continuous")
+                raise ValueError(
+                    f"StructuredDataItem.value `{self.value}` is not continuous"
+                )
         elif self.data_type == StructuredDataItem.DataType.CATEGORY:
             pass
         else:

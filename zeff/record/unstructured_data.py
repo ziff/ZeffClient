@@ -5,6 +5,7 @@ __docformat__ = "reStructuredText en"
 
 import dataclasses
 from typing import Optional
+import re
 
 from .aggregator import aggregation
 from .record import Record
@@ -18,7 +19,7 @@ class UnstructuredData:
     def validate(self):
         """Validate to ensure that it will be accepted on upload."""
         # pylint: disable=no-member
-        for item in self.structured_data_items:
+        for item in self.unstructured_data_items:
             item.validate()
 
 
@@ -43,6 +44,22 @@ class UnstructuredDataItem:
     media_type: str
     group_by: Optional[str] = None
 
+    re_mediatype = re.compile(
+        r"""(?ax)^
+            (?P<type>.[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_]{0,126})
+            /
+            (?P<subtype>.[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_]{0,126})
+            (?P<parameters>(;
+                [!#$%&'*+\-.0-9A-Z^_`a-z|~]+
+                =
+                (([!#$%&'*+\-.0-9A-Z^_`a-z|~]+)|("[^"]+"))
+            )*)
+            $"""
+    )
+
     def validate(self):
         """Validate to ensure that it will be accepted on upload."""
-        pass
+
+        # RFC6838 Media Type Specifications and Registration Procedures
+        if UnstructuredDataItem.re_mediatype.match(self.media_type) is None:
+            raise ValueError(f"Invalid media type `{self.media_type}`")

@@ -1,0 +1,4 @@
+# Specific files that will be created by a customer
+
+db.sqlite3
+house_price_record_builder.py

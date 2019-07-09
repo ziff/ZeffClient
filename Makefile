@@ -15,6 +15,13 @@ publish:			## Publish the library to the central PyPi repository
 	echo python setup.py sdist upload
 
 
+examples:			## Setup environement for doing examples
+	@${PIP} ${PIPFLAGS} install --upgrade pip
+	@${PIP} ${PIPFLAGS} install --upgrade -e .
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[examples]"
+	python setup.py build install
+
+
 validate: lint test	## Validate project for CI, CD, and publish
 
 

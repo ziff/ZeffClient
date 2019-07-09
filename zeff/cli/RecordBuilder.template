@@ -3,41 +3,62 @@
 __version__ = '0.0'
 
 import logging
-logging = logging.getLogger('zeffclient.record_builder')
+from zeff.record import *
+
+LOGGER = logging.getLogger('zeffclient.record_builder')
 
 
 class ${name}RecordBuilder():
-    """Zeff record builder callable object that builds ${name} records."""
+    """Zeff record builder callable object that builds ${name} records.
+
+    The callable object has a single `config` parameter that the record
+    builder understands. This could be a URL, a unique number that is
+    a primary key in the database, or a full configuration file.
+    """
 
     def __init__(self, *args, **argv):
         pass
 
-    def __call__(self, url):
-        logging.info("Begin building ``${name}`` record from %s", url)
+    def __call__(self, config):
+        LOGGER.info("Begin building ``${name}`` record from %s", config)
+        record = Record(name="example")
         # Your record build code goes here
-        logging.info("End building ``${name}`` record from %s", url)
+        LOGGER.info("End building ``${name}`` record from %s", config)
+        return record
 
 
 if __name__ == "__main__":
     import sys
+    from logging import basicConfig, DEBUG
     import errno
     import argparse
-    from logging import basicConfig, DEBUG
+    from zeff.cli import format_record_restructuredtext
+
+    if sys.version_info < (3, 7):
+        raise Exception("{0} requires Python 3.7.".format(sys.argv[0]))
+
     basicConfig(level=DEBUG)
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--version",
-        action="version",
-        version=f"%(prog)s {__version__}")
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
     parser.add_argument(
-        "recordurl",
-        help="URL to information to build ${name} record")
+        "config", help="URL to information to build HousePrice record"
+    )
     options = parser.parse_args()
 
     try:
-        builder = ${name}RecordBuilder()
-        builder(options.recordurl)
+        builder = HousePriceRecordBuilder()
+        record = builder(options.config)
+        record.validate()
+        format_record_restructuredtext(record, out=sys.stdout)
+    except TypeError as err:
+        logging.error(f"Record Validation Failed {err}")
+        sys.exit(1)
+    except ValueError as err:
+        logging.error(f"Record Validation Failed {err}")
+        sys.exit(1)
     except SystemExit as err:
         logging.info("System exit")
         raise

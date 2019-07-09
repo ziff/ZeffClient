@@ -1,0 +1,97 @@
+"""Zeff CLI record formatter."""
+__docformat__ = "reStructuredText en"
+
+
+import sys
+import itertools
+import textwrap
+
+
+def format_record_restructuredtext(record, out=sys.stdout):
+    """Convert a record to a reStructuedText document.
+
+    :param record: Record to format.
+
+    :param out: A file type object to write the record in.
+    """
+
+    def print_table_header(columns):
+        for name, width in columns:
+            print(f"+-{'-'*width}-", end="", file=out)
+        print("+", file=out)
+
+        for name, width in columns:
+            print(f"| {name}{' '*(width-len(name))} ", end="", file=out)
+        print("|", file=out)
+
+        for name, width in columns:
+            print(f"+={'='*width}=", end="", file=out)
+        print("+", file=out)
+
+    def print_table_entry(data, columns):
+        cstrs = [(str(d), w) for d, (n, w) in zip(data, columns)]
+        cstrs = [textwrap.wrap(s, w) for s, w in cstrs]
+        for rstrs in itertools.zip_longest(*cstrs):
+            for index, vstr in enumerate(rstrs):
+                width = columns[index][1]
+                if vstr is None:
+                    print(f"| {' '*width} ", end="", file=out)
+                else:
+                    print(f"| {vstr:<{width}} ", end="", file=out)
+            print("|", file=out)
+        for _, width in columns:
+            print(f"+-{'-'*width}-", end="", file=out)
+        print("+", file=out)
+
+    def print_structured_item_table(structured_data):
+        columns = compute_column_widths(
+            structured_data.structured_data_items,
+            ["name", "data_type", "target", "value"],
+            [16, 8, 6, 32],
+        )
+        print_table_header(columns)
+
+        for sdi in structured_data.structured_data_items:
+            data = [sdi.name, sdi.data_type.name, sdi.target.name, sdi.value]
+            print_table_entry(data, columns)
+
+    def print_unstructured_item_table(unstructured_data):
+        columns = compute_column_widths(
+            unstructured_data.unstructured_data_items,
+            ["media_type", "group_by", "data"],
+            [16, 8, 8],
+        )
+        print_table_header(columns)
+
+        for udi in unstructured_data.unstructured_data_items:
+            data = [udi.media_type, udi.group_by, udi.data]
+            print_table_entry(data, columns)
+
+    def compute_column_widths(items, names, mins):
+        widths = list(mins)
+        for item in items:
+            for index, width in enumerate(widths):
+                value = getattr(item, names[index])
+                width = max(len(str(value)), width)
+                widths[index] = width
+        if sum(widths) + len(widths) * 3 + 1 > 132:
+            reduce = sum(widths) + len(widths) * 3 + 1 - 132
+            maxcol = max(widths)
+            widths[widths.index(maxcol)] = maxcol - reduce
+        return list(zip(names, widths))
+
+    print("=" * len(str(record)))
+    print(record)
+    print("=" * len(str(record)))
+
+    for structured_data in record.structured_data:
+        print()
+        print("Structured Data")
+        print("===============")
+        print_structured_item_table(structured_data)
+
+    for unstructured_data in record.unstructured_data:
+        print(file=out)
+        print("Unstructured Data", file=out)
+        print("=================", file=out)
+        print_unstructured_item_table(unstructured_data)
