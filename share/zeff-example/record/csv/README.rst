@@ -1,12 +1,12 @@
-========================
-ZeffClient RDBMS Example
-========================
+======================
+ZeffClient CSV Example
+======================
 -----------
 House Price
 -----------
 
-In this example we will create a record builder that will access an SQL
-RDMS database for the information necessary to create the record.
+In this example we will create a record builder that will access a
+CSV file for information necessary to create the record.
 
 
 Record Config Generator
@@ -16,10 +16,15 @@ A record config generator will generate a string that will be passed
 to the record builder. This string may be a URL, a unique id, or a full
 configuration file.
 
-For this example we will use the id that is the primary key of the
-properties table in the SQLite database:
+For this example we will use a URL that identifies the CSV file to
+access with a query section that gives the id of the row that we will
+use:
 
-   ``1395678``
+   ``file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678``
+
+The ``ZeffClient`` must be replaced with the path to the ZeffClient
+repository that you cloned.
+
 
 
 
@@ -53,69 +58,78 @@ Record Builder
       also use this logger while building records for error reporting,
       warnings, information, and debugging.
 
-5. ``unzip db.sqlite3.zip``
-   This contains a compressed sqlite3 database.
+5. Directory structure:
 
-6. ``python house_price_record_builder.py 1395678`` should show the following
+   A. The CSV information is contained in ``./properties.csv``.
+
+   B. Images that will be added to the record are in ``./images_1395678``.
+
+6. ``python house_price_record_builder.py "file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678`` should show the following
    output:
 
    ::
 
-      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from 1395678
-      INFO:zeffclient.record_builder:End building ``HousePrice`` record from 1395678
+      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
+      INFO:zeffclient.record_builder:End building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
       ======================
       Record(name='Example')
       ======================
 
 7. Build an empty record:
 
-   A. In ``def __call__(...)`` change ``Record(name="example")`` to:
+   A. In the ``import`` section add
 
       ::
 
-         record = Record(name=config)
+         import pathlib
+         import urllib.parse
 
-   B. When you execute this it should print the same as in step 6, but with
-      "Example" changed to the record number.
-
-8. Setup database access:
-
-   A. In the ``import`` section add ``import sqlite3``.
-
-   B. In ``def __init__(...)`` replace ``pass`` with:
+   B. Change ``def __call__(...)`` to be:
 
       ::
 
-         self.conn = sqlite3.connect("db.sqlite3")
-         self.conn.row_factory = sqlite3.Row
+        urlparts = urllib.parse.urlsplit(config)
+        path = pathlib.Path(urlparts[2])
+        id = urlparts[3].split('=')[1]
+        LOGGER.info("Begin building ``HousePrice`` record from %s", id)
+        record = Record(name=id)
+        # Your record build code goes here
+        LOGGER.info("End building ``HousePrice`` record from %s", id)
+        return record
 
-   C. When you execute this it should print out the same as in step 7
-      with no errors.
+   C. When you execute this it should print the same as in step 6, but with
+      "Example" changed to the record number and the log entries using the
+      record number.
 
 9. Add structured items to the record:
 
-   A. In ``def __call__(...)`` replace ``# Your record build code goes here``
+   A. In the ``import`` section add ``import csv``.
+
+   B. In ``def __call__(...)`` replace ``# Your record build code goes here``
       with:
 
       ::
 
-         self.add_structured_items(record, config)
+         self.add_structured_items(record, path, id)
 
-   B. Then add the following method:
+   C. Then add the following method:
 
       ::
 
-         def add_structured_items(self, record, id):
+         def add_structured_items(self, record, path, id):
+             row = None
+             with open(path, 'r') as csvfile:
+                 for row in csv.DictReader(csvfile):
+                     if row['id'] == id:
+                         row = row
+                         break
+                 else:
+                     return
 
              # Create a new structured data element
              sd = StructuredData()
 
-             # Select all the properties from the database for the record
-             sql = f"SELECT * FROM properties WHERE id={id}"
-             cursor = self.conn.cursor()
-             row = cursor.execute(sql).fetchone()
-
-             # Process each column in the record except for `id` and
+             # Process each field in the record except for `id` and
              # add it as a structured data item to the structured data
              # object
              for key in row.keys():
@@ -134,11 +148,10 @@ Record Builder
                  sdi = StructuredDataItem(name=key, value=value, data_type=dtype)
                  sdi.structured_data = sd
 
-             # Clean up then add the structured data object to the record
-             cursor.close()
+             # Add the structured data object to the record
              sd.record = record
 
-   C. When you execute this you should see everything from step 8 with
+   D. When you execute this you should see everything from step 8 with
       additional structured data table that will look similar to, but
       with more table entries:
 
@@ -154,40 +167,37 @@ Record Builder
 
 9. Add unstructured items to the record:
 
-   A. In ``def __call__(...)`` add the following after the line you
-      added in step 8.
+   A. In ``def __call__(...)`` add the following after the line created
+      in step 8:
 
       ::
 
-         self.add_unstructured_items(record, config)
+         self.add_unstructured_items(record, path.parent, id)
 
    B. Then add the following method:
 
       ::
 
-         def add_unstructured_items(self, record, id):
+         def add_unstructured_items(self, record, path, id):
+
+             img_path = path / f"images_{id}"
 
              # Create an unstructured data object
              ud = UnstructuredData()
 
-             # Select all the property imaages for the record
-             sql = f"SELECT * FROM property_images WHERE property_id={id}"
-             cursor = self.conn.cursor()
-
-             # Process each row returned in the selection, create an
+             # Process each jpeg file in the image path, create an
              # unstructured data item, and add that to the unstructured
              # data object. Note that we are assuming that the media-type
              # for all of these images is a JPEG, but that may be different
              # in your system.
-             for row in cursor.execute(sql).fetchall():
-                 url = row["url"]
+             for p in img_path.glob('**/*.jpeg'):
+                 url = f"file://{p}"
                  media_type = "image/jpg"
-                 group_by = row["image_type"]
+                 group_by = None
                  udi = UnstructuredDataItem(url, media_type, group_by=group_by)
                  udi.unstructured_data = ud
 
-             # Clean up then add the unstructured data object to the record
-             cursor.close()
+             # Add the unstructured data object to the record
              ud.record = record
 
    C. When you execute this you should see everything from step 8 with
@@ -198,9 +208,8 @@ Record Builder
 
           Unstructured Data
           =================
-          +------------+------------+----------------------------------+
-          | media_type | group_by   | data                             |
-          +============+============+==================================+
-          | image/jpg  | home_photo | https://example.com/photo_38.jpg |
-          +------------+------------+----------------------------------+
-
+          +------------+----------+----------------------------------------+
+          | media_type | group_by | data                                   |
+          +============+==========+========================================+
+          | image/jpg  | None     | file://images_1395678/property003.jpeg |
+          +------------+----------+----------------------------------------+
