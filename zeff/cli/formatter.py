@@ -7,12 +7,25 @@ import itertools
 import textwrap
 
 
-def format_record_restructuredtext(record, out=sys.stdout):
+def format_record_restructuredtext(
+    record,
+    out=sys.stdout,
+    structured_sort=lambda k: k.name,
+    unstructured_sort=lambda k: k.group_by,
+):
     """Convert a record to a reStructuedText document.
 
     :param record: Record to format.
 
-    :param out: A file type object to write the record in.
+    :param out: A file type object to write the record in. Default `stdout`.
+
+    :param structured_sort: A function of one argument that will be
+        used to sort the structured data items. The default is to
+        sort by the name of the item.
+
+    :param unstructured_sort: A function of one argument that will be
+        used to sort the unstructured data items. The default is to
+        sort on `group_by`.
     """
 
     def print_table_header(columns):
@@ -51,7 +64,9 @@ def format_record_restructuredtext(record, out=sys.stdout):
         )
         print_table_header(columns)
 
-        for sdi in structured_data.structured_data_items:
+        data_items = list(structured_data.structured_data_items)
+        data_items.sort(key=structured_sort)
+        for sdi in data_items:
             data = [sdi.name, sdi.data_type.name, sdi.target.name, sdi.value]
             print_table_entry(data, columns)
 
@@ -63,7 +78,9 @@ def format_record_restructuredtext(record, out=sys.stdout):
         )
         print_table_header(columns)
 
-        for udi in unstructured_data.unstructured_data_items:
+        data_items = list(unstructured_data.unstructured_data_items)
+        data_items.sort(key=unstructured_sort)
+        for udi in data_items:
             data = [udi.media_type, udi.group_by, udi.data]
             print_table_entry(data, columns)
 

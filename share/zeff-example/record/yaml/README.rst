@@ -191,7 +191,7 @@ Record Builder
              for p in img_path.glob('**/*.jpeg'):
                  url = f"file://{p}"
                  media_type = "image/jpg"
-                 group_by = None
+                 group_by = "home_photo"
                  udi = UnstructuredDataItem(url, media_type, group_by=group_by)
                  udi.unstructured_data = ud
 
