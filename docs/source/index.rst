@@ -10,8 +10,7 @@ Zeff Cloud API online systems easier.
    - :doc:`zeff.record` is for building records that may be validated
      or uploaded to Zeff Cloud API.
 
-   - :doc:`zeff.cli` is a CLI tool that simplifies experimentation
-     with Zeff Cloud API.
+   - :doc:`zeff.cli` simplifies experimentation with Zeff Cloud API.
 
 
 .. toctree::

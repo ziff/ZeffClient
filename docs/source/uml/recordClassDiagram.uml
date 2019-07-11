@@ -16,8 +16,8 @@ namespace ZeffClient.record {
 	class StructuredDataItem {
 		name: String
 		value: Bytes
-		data_type: (continuous, discrete)
-		target:
+		data_type: [continuous, discrete]
+		target: [yes, no, ignore]
 	}
 
 

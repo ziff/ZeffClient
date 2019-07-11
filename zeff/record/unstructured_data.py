@@ -2,6 +2,7 @@
 # pylint: disable=duplicate-code
 # pylint: disable=too-few-public-methods
 __docformat__ = "reStructuredText en"
+__all__ = ["UnstructuredData", "UnstructuredDataItem"]
 
 import dataclasses
 from typing import Optional

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 """
-Zeff is a commandline tool for working with Zeff Cloud API.
+Zeff commandline tool man page.
 
 ####
 Zeff
@@ -28,14 +28,32 @@ Description
 Options
 =======
 
-    ``-v --verbose {{critical,error,warning,info,debug}}``
+    ``-h --help``
+        Display help.
+
+    ``--version``
+        Show version for zeff.
+
+    ``--verbose {{critical,error,warning,info,debug}}``
         Change the logging level of the handler named ``console`` from
         the logging configuration file. This has no effect on any other
         handler or logger.
 
-    ``--logging-conf``
+    ``--logging-conf path``
         Custom logging configuration file using Python logging
         dictionary configuration.
+
+
+Sub-commands
+============
+
+    ``run``
+        Build, validate, and upload records to Zeff Cloud from generated
+        strings. See ``zeff run --help`` for arguments.
+
+    ``template``
+        Create a record builder template.
+
 
 
 Exit Status
@@ -58,7 +76,7 @@ import pathlib
 import argparse
 
 from .template import *
-from .generate import *
+from .run import *
 from .formatter import *
 
 
@@ -84,7 +102,7 @@ def parse_commandline(args=None):
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    generate_subparser(subparsers)
+    run_subparser(subparsers)
     template_subparser(subparsers)
 
     options = parser.parse_args(args=args)

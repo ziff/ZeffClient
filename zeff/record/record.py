@@ -1,6 +1,7 @@
 """Zeff record."""
 # pylint: disable=too-few-public-methods
 __docformat__ = "reStructuredText en"
+__all__ = ["Record"]
 
 import dataclasses
 

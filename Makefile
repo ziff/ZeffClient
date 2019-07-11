@@ -75,12 +75,13 @@ test:				## Run test suite
 
 lint:				## Check source for conformance
 	@echo Checking source conformance
+	@echo Updating lint tools
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e ".[lint]"
-	pylint -f parseable -r n zeff && \
-		pycodestyle zeff && \
-		pydocstyle zeff && \
-		mypy zeff
+	pylint -f parseable -r n zeff
+	pycodestyle zeff
+	pydocstyle zeff
+	mypy zeff
 
 
 format:				## Format source code to standard

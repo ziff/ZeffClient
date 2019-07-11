@@ -1,6 +1,6 @@
 """Zeff subcommand to run a record generator."""
 __docformat__ = "reStructuredText en"
-__all__ = ["generate_subparser"]
+__all__ = ["run_subparser"]
 
 import sys
 import os
@@ -10,12 +10,13 @@ import errno
 import importlib
 
 import zeff
+import zeff.record
 
 
-def generate_subparser(subparsers):
-    """Add the ``generate`` sub-system as a subparser for argparse.
+def run_subparser(subparsers):
+    """Add the ``run`` sub-system as a subparser for argparse.
 
-    :param subparsers: The subparser to add the generate sub-command.
+    :param subparsers: The subparser to add the run sub-command.
     """
 
     def create_url(argstr):
@@ -24,7 +25,7 @@ def generate_subparser(subparsers):
             argstr = urllib.parse.urlunsplit(("file", "", argstr, "", ""))
         return argstr
 
-    parser = subparsers.add_parser("generate")
+    parser = subparsers.add_parser("run")
     parser.add_argument(
         "record-builder",
         help="Name of python class that will build a record given a URL to record sources.",
@@ -43,10 +44,16 @@ def generate_subparser(subparsers):
         default=os.getcwd(),
         help="Base URL for records (default: current working directory)",
     )
-    parser.set_defaults(func=generate)
+    parser.add_argument(
+        "--dry-run",
+        choices=["configuration", "build", "validate"],
+        help="""Do a dry run up to the specified phase and print
+            results to stdout.""",
+    )
+    parser.set_defaults(func=run)
 
 
-def generate(options):
+def run(options):
     """Generate a set of records from options."""
 
     def get_mclass(name):
@@ -73,8 +80,23 @@ def generate(options):
     record_builder = get_mclass("record-builder")
     logging.debug("Found record-builder: %s", record_builder)
 
-    generator = record_url_generator(options.url)
-    builder = record_builder()
-
-    for record in zeff.recordgenerator.generate(generator, builder):
-        print(record)
+    if options.dry_run == "configuration":
+        zeff.runner(record_url_generator(options.url), print, lambda r: r, lambda r: r)
+    elif options.dry_run == "build":
+        zeff.runner(
+            record_url_generator(options.url), record_builder, lambda r: r, lambda r: r
+        )
+    elif options.dry_run == "validate":
+        zeff.runner(
+            record_url_generator(options.url),
+            record_builder,
+            lambda r: zeff.record.Record.validate,
+            lambda r: r,
+        )
+    else:
+        zeff.runner(
+            record_url_generator(options.url),
+            record_builder,
+            lambda r: zeff.record.Record.validate,
+            lambda r: print("Uploader not built"),
+        )

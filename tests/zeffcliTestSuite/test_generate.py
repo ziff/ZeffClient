@@ -5,7 +5,7 @@ import os
 import io
 import types
 
-from zeff.cli.generate import generate
+from zeff.cli.run import run
 
 
 def test_generate():
@@ -16,10 +16,11 @@ def test_generate():
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
         },
+        dry_run="configuration",
     )
     strio = io.StringIO()
     sys.stdout = strio
-    generate(options)
+    run(options)
     sys.stdout = sys.__stdout__
 
     urls = [url.strip() for url in strio.getvalue().split("\n") if url]

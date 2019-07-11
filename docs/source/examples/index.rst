@@ -84,7 +84,7 @@ of running the entire ZeffClient system.
 Record
 ======
 
-A record object is build from classes in :doc:`../zeff.record`. An
+A record object is built from classes in :doc:`../zeff.record`. An
 object of this type is required to be returned from your record
 builder.
 
