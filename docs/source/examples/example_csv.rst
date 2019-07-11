@@ -1,9 +1,6 @@
 ======================
 ZeffClient CSV Example
 ======================
------------
-House Price
------------
 
 In this example we will create a record builder that will access a
 CSV file for information necessary to create the record.
@@ -20,26 +17,40 @@ For this example we will use a URL that identifies the CSV file to
 access with a query section that gives the id of the row that we will
 use:
 
-   ``file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678``
+   ``file:///<root>/properties.csv?id=1395678``
 
-The ``ZeffClient`` must be replaced with the path to the ZeffClient
-repository that you cloned.
-
-
+The ``<root>`` must be replaced with the path to the directory that
+contains your ``properties.csv`` file. In this example that will be
+the directory you create in step 1 of `Record Builder`_.
 
 
 Record Builder
 ==============
 
-1. Setup development environment: see ``<ZeffClient>/share/zeff-example/README.rst``.
+1. Download an decompress :download:`example_csv.tar.bz2 <example_csv.tar.bz2>`
+   into a location of your choice.
 
-2. ``cd <ZeffClient>/share/zeff-example/record/csv/``
+2. Change to the directory that was created. This will be the ``<root>``
+   used in the URL.
 
-3. ``zeff template --help``
+3. Setup virtual environment:
+
+   A. ``python -m venv .venv``
+
+   B. ``pip install --upgrade pip``
+
+   C. ``pip install git+ssh://git@github.com/ziff/ZeffClient.git``
+
+      .. note::
+
+         This step will change when the repository becomes public
+         and ZeffClient is available in PyPi.
+
+4. ``zeff template --help``
    This will show the various options availalble when working with
    templates.
 
-4. ``zeff template HousePrice > house_price_record_builder.py``
+5. ``zeff template HousePrice > house_price_record_builder.py``
    Create a new house price record builder python file from a template.
 
    A. This file may be executed from the command line directly and has a
@@ -58,24 +69,24 @@ Record Builder
       also use this logger while building records for error reporting,
       warnings, information, and debugging.
 
-5. Directory structure:
+6. Directory structure:
 
    A. The CSV information is contained in ``./properties.csv``.
 
    B. Images that will be added to the record are in ``./images_1395678``.
 
-6. ``python house_price_record_builder.py "file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678`` should show the following
+7. ``python house_price_record_builder.py "file:///<root>/properties.csv?id=1395678`` should show the following
    output:
 
    ::
 
-      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
-      INFO:zeffclient.record_builder:End building ``HousePrice`` record from file:///<ZeffClient>/share/zeff-example/record/csv/properties.csv?id=1395678
+      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from file:///<root>/properties.csv?id=1395678
+      INFO:zeffclient.record_builder:End building ``HousePrice`` record from file:///<root>/properties.csv?id=1395678
       ======================
       Record(name='Example')
       ======================
 
-7. Build an empty record:
+8. Build an empty record:
 
    A. In the ``import`` section add
 
@@ -163,7 +174,7 @@ Record Builder
           | garage_capacity | CONTINUOUS | NO     | 6     |
           +-----------------+------------+--------+-------+
 
-9. Add unstructured items to the record:
+10. Add unstructured items to the record:
 
    A. In ``def __call__(...)`` add the following after the line created
       in step 8:

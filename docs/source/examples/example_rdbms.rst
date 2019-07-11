@@ -1,9 +1,6 @@
 ========================
 ZeffClient RDBMS Example
 ========================
------------
-House Price
------------
 
 In this example we will create a record builder that will access an SQL
 RDMS database for the information necessary to create the record.
@@ -26,15 +23,30 @@ properties table in the SQLite database:
 Record Builder
 ==============
 
-1. Setup development environment: see ``<ZeffClient>/share/zeff-example/README.rst``.
+1. Download an decompress :download:`example_rdbms.tar.bz2 <example_rdbms.tar.bz2>`
+   into a location of your choice.
 
-2. ``cd <ZeffClient>/share/zeff-example/record/rdbms/``
+2. Change to the directory that was created. This will be the ``<root>``
+   used in the URL.
 
-3. ``zeff template --help``
+3. Setup virtual environment:
+
+   A. ``python -m venv .venv``
+
+   B. ``pip install --upgrade pip``
+
+   C. ``pip install git+ssh://git@github.com/ziff/ZeffClient.git``
+
+      .. note::
+
+         This step will change when the repository becomes public
+         and ZeffClient is available in PyPi.
+
+4. ``zeff template --help``
    This will show the various options availalble when working with
    templates.
 
-4. ``zeff template HousePrice > house_price_record_builder.py``
+5. ``zeff template HousePrice > house_price_record_builder.py``
    Create a new house price record builder python file from a template.
 
    A. This file may be executed from the command line directly and has a
@@ -52,9 +64,6 @@ Record Builder
       indicate various stages of the record building process. You should
       also use this logger while building records for error reporting,
       warnings, information, and debugging.
-
-5. ``unzip db.sqlite3.zip``
-   This contains a compressed sqlite3 database.
 
 6. ``python house_price_record_builder.py 1395678`` should show the following
    output:
@@ -152,55 +161,55 @@ Record Builder
           | garage_capacity | CONTINUOUS | NO     | 6     |
           +-----------------+------------+--------+-------+
 
-9. Add unstructured items to the record:
+10. Add unstructured items to the record:
 
-   A. In ``def __call__(...)`` add the following after the line you
-      added in step 8.
+    A. In ``def __call__(...)`` add the following after the line you
+       added in step 8.
 
-      ::
+       ::
 
-         self.add_unstructured_items(record, config)
+          self.add_unstructured_items(record, config)
 
-   B. Then add the following method:
+    B. Then add the following method:
 
-      ::
+       ::
 
-         def add_unstructured_items(self, record, id):
+          def add_unstructured_items(self, record, id):
 
-             # Create an unstructured data object
-             ud = UnstructuredData()
+              # Create an unstructured data object
+              ud = UnstructuredData()
 
-             # Select all the property imaages for the record
-             sql = f"SELECT * FROM property_images WHERE property_id={id}"
-             cursor = self.conn.cursor()
+              # Select all the property imaages for the record
+              sql = f"SELECT * FROM property_images WHERE property_id={id}"
+              cursor = self.conn.cursor()
 
-             # Process each row returned in the selection, create an
-             # unstructured data item, and add that to the unstructured
-             # data object. Note that we are assuming that the media-type
-             # for all of these images is a JPEG, but that may be different
-             # in your system.
-             for row in cursor.execute(sql).fetchall():
-                 url = row["url"]
-                 media_type = "image/jpg"
-                 group_by = row["image_type"]
-                 udi = UnstructuredDataItem(url, media_type, group_by=group_by)
-                 udi.unstructured_data = ud
+              # Process each row returned in the selection, create an
+              # unstructured data item, and add that to the unstructured
+              # data object. Note that we are assuming that the media-type
+              # for all of these images is a JPEG, but that may be different
+              # in your system.
+              for row in cursor.execute(sql).fetchall():
+                  url = row["url"]
+                  media_type = "image/jpg"
+                  group_by = row["image_type"]
+                  udi = UnstructuredDataItem(url, media_type, group_by=group_by)
+                  udi.unstructured_data = ud
 
-             # Clean up then add the unstructured data object to the record
-             cursor.close()
-             ud.record = record
+              # Clean up then add the unstructured data object to the record
+              cursor.close()
+              ud.record = record
 
-   C. When you execute this you should see everything from step 8 with
-      additional structured data table that will look similar to, but
-      with more table entries:
+    C. When you execute this you should see everything from step 8 with
+       additional structured data table that will look similar to, but
+       with more table entries:
 
-      ::
+       ::
 
-          Unstructured Data
-          =================
-          +------------+------------+----------------------------------+
-          | media_type | group_by   | data                             |
-          +============+============+==================================+
-          | image/jpg  | home_photo | https://example.com/photo_38.jpg |
-          +------------+------------+----------------------------------+
+           Unstructured Data
+           =================
+           +------------+------------+----------------------------------+
+           | media_type | group_by   | data                             |
+           +============+============+==================================+
+           | image/jpg  | home_photo | https://example.com/photo_38.jpg |
+           +------------+------------+----------------------------------+
 

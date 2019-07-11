@@ -11,7 +11,7 @@ def format_record_restructuredtext(
     record,
     out=sys.stdout,
     structured_sort=lambda k: k.name,
-    unstructured_sort=lambda k: k.group_by,
+    unstructured_sort=lambda k: k.group_by if k.group_by is not None else "",
 ):
     """Convert a record to a reStructuedText document.
 

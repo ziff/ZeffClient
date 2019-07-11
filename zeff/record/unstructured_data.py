@@ -37,7 +37,7 @@ class UnstructuredDataItem:
     :property media_type: An RFC 2046 media type of the data.
 
     :property group_by: Name of a groupd this item should be
-    associated with.
+        associated with.
     """
 
     data: str

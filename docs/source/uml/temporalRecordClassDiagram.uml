@@ -1,0 +1,59 @@
+@startuml
+
+namespace ZeffClient.temporalrecord {
+	class TemporalRecord {
+		name: String
+		windowSize: duration
+		void validate()
+		void submit()
+	}
+	TemporalRecord "0..*" o-- "1..*" File : files
+	TemporalRecord "1" *-- "0..*" Events : event_sets
+	'TemporalRecord "1" *-- "0..*" FileContext : contexts
+	TemporalRecord "1" *-- "0..*" StructuredData
+	TemporalRecord "1" *-- "0..*" UnstructuredData
+
+	class File {
+		data: URI
+		media_type: RFC2046
+		group_by: String
+	}
+
+	class Events {
+	}
+	Events "1" *-- "0..*" Event
+
+	class Event {
+		name: String
+		value: Bytes
+		start: Period
+		end: Period
+	}
+
+	class FileContext {
+	}
+	File "1" - "1" Events
+	(File, Events) .. FileContext
+
+	class StructuredData {
+	}
+	StructuredData "1" *-- "0..*" StructuredDataItem : items
+
+	class StructuredDataItem {
+		name: String
+		value: Bytes
+		data_type: (continuous, discrete)
+	}
+
+	class UnstructuredData {
+	}
+	UnstructuredData "1" *-- "0..*" UnstructuredDataItem : items
+
+	class UnstructuredDataItem {
+		data: URI
+		media_type: RFC2046
+		group_by: String
+	}
+}
+
+@enduml

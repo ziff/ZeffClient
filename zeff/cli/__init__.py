@@ -48,17 +48,6 @@ The following exit values shall be returned:
 >0
     An error occurred (Standard errors from <errno.h>).
 
-**********
-References
-**********
-
-.. [RFC2119] RFC2119, Key words for use in RFCs to Indicate Requirement
-    Levels, S. Bradner, March 1997.
-
-.. [RFC3986] RFC3986, Uniform Resource Identifier (URI): Generic Syntax,
-    T. Berners-Lee, R. Fielding, L. Masinter, January 2005.
-
-.. [RFC5424] RFC5424, The Syslog Protocol, R. Gerhards, March 2009.
 """
 __copyright__ = """Copyright (C) 2019 Ziff, Inc."""
 __docformat__ = "reStructuredText en"

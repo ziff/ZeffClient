@@ -1,0 +1,60 @@
+
+@startuml
+
+
+' ===========================================================================
+
+namespace ZeffClient {
+
+	class RecordUploader {
+	}
+
+	class Reporter {
+		generated(record)
+		validate_success(record)
+		validate_warning(record)
+		validate_error(record)
+		submit_success(record)
+		submit_error(record)
+	}
+
+	class LoggingReporter {
+		__init__(logging.Logger)
+	}
+	Reporter <|-- LoggingReporter
+}
+
+
+!include recordClassDiagram.uml
+!include temporalRecordClassDiagram.uml
+
+
+
+' ===========================================================================
+
+namespace ZeffClient.RecordGenerator {
+	class RecordGenerator {
+	}
+
+	class MultiprocessingRecordGenerator {
+	}
+}
+
+
+' ===========================================================================
+
+namespace ZeffClient.RestClient {
+	class RecordQueue <<queue.Queue>> {
+	}
+	RecordQueue --> ZeffServer : server
+
+	class ZeffServer {
+	}
+	ZeffServer "1" *-- "0..*" ZeffConnection : connection_pool
+
+	class ZeffConnection <<http.HTTPSConnection>> {
+	}
+}
+
+
+@enduml

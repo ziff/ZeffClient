@@ -1,0 +1,35 @@
+@startuml
+
+namespace ZeffClient.record {
+	class Record {
+		name: String
+		void validate()
+		void submit()
+	}
+	Record "1" *-- "0..*" StructuredData
+	Record "1" *-- "0..*" UnstructuredData
+
+	class StructuredData {
+	}
+	StructuredData "1" *-- "0..*" StructuredDataItem : items
+
+	class StructuredDataItem {
+		name: String
+		value: Bytes
+		data_type: (continuous, discrete)
+		target:
+	}
+
+
+	class UnstructuredData {
+	}
+	UnstructuredData "1" *-- "0..*" UnstructuredDataItem : items
+
+	class UnstructuredDataItem {
+		data: URI
+		media_type: RFC2046
+		group_by: String
+	}
+}
+
+@enduml

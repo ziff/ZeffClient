@@ -1,9 +1,8 @@
 .POSIX:
-.PHONY: publish validate build test lint help
+.PHONY: install publish docs examples validate build test lint help
 
-PIP = python -m pip
-PIPFLAGS = --quiet
-
+PIP           = python -m pip
+PIPFLAGS      = --quiet
 
 install:			## Install system
 	@${PIP} ${PIPFLAGS} install --upgrade pip
@@ -15,6 +14,21 @@ publish:			## Publish the library to the central PyPi repository
 	echo python setup.py sdist upload
 
 
+docs:				## Create documentation
+	@echo Update required tools
+	@${PIP} ${PIPFLAGS} install --upgrade pip
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
+	@echo Update UML diagrams
+	@plantuml docs/source/**/*.uml
+	@echo Update man pages
+	@mkdir -p docs/source/man/man1
+	@python -c 'import zeff; print(zeff.__doc__)' | \
+		sed '1,3d' | \
+		rst2man.py > docs/source/man/man1/zeff.1
+	@echo Create documentation
+	@$(MAKE) -C docs docs
+
+
 examples:			## Setup environement for doing examples
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e .
@@ -24,13 +38,6 @@ examples:			## Setup environement for doing examples
 
 validate: lint test	## Validate project for CI, CD, and publish
 
-
-docs:				## Create documentation
-	@${PIP} ${PIPFLAGS} install --upgrade pip
-	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
-	python -c 'import zeff; print(zeff.__doc__)' | \
-		sed '1,3d' | \
-		rst2man.py > spam.man
 
 
 clean:				## Clean generated files
