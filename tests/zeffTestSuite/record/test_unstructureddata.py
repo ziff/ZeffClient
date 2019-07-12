@@ -54,7 +54,7 @@ def test_permissions_file():
     """Test building a UnstructuredData with no read permissions."""
     udi = UnstructuredDataItem("file:///etc/sudoers", "text/plain")
     udi.validate()
-    assert udi.accessible.lower().find("permission denied") != -1
+    assert udi.accessible != "OK"
 
 
 def test_invalid_url_scheme():
