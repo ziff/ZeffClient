@@ -19,7 +19,7 @@ class ${name}RecordBuilder():
     def __init__(self, *args, **argv):
         pass
 
-    def __call__(self, config: str) -> Record
+    def __call__(self, config: str) -> Record:
         LOGGER.info("Begin building ``${name}`` record from %s", config)
         record = Record(name="example")
         # Your record build code goes here

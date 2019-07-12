@@ -7,6 +7,9 @@ __all__ = ["UnstructuredData", "UnstructuredDataItem"]
 import dataclasses
 from typing import Optional
 import re
+import urllib.parse
+import urllib.request
+import pathlib
 
 from .aggregator import aggregation
 from .record import Record
@@ -44,6 +47,9 @@ class UnstructuredDataItem:
     data: str
     media_type: str
     group_by: Optional[str] = None
+    accessable: str = dataclasses.field(
+        default="", init=False, repr=False, compare=False
+    )
 
     re_mediatype = re.compile(
         r"""(?ax)^
@@ -64,3 +70,26 @@ class UnstructuredDataItem:
         # RFC6838 Media Type Specifications and Registration Procedures
         if UnstructuredDataItem.re_mediatype.match(self.media_type) is None:
             raise ValueError(f"Invalid media type `{self.media_type}`")
+
+        parts = urllib.parse.urlsplit(self.data)
+        if parts[0] == "file":
+            value = "OK"
+            path = pathlib.Path(parts[2])
+            if not path.exists():
+                value = "file missing"
+            elif not path.is_file():
+                value = "not a file"
+            else:
+                try:
+                    with path.open("r") as f:
+                        pass
+                except OSError as err:
+                    value = str(err)
+        elif parts[0] in ["http", "https"]:
+            url = "https://docs.python.org/3/library/urllib.request.html"
+            req = urllib.request.Request(url, method="HEAD")
+            resp = urllib.request.urlopen(req)
+            value = resp.reason
+        else:
+            value = f"Unknown URL scheme {parts[0]}"
+        object.__setattr__(self, "accessable", value)

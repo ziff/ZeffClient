@@ -73,15 +73,15 @@ def format_record_restructuredtext(
     def print_unstructured_item_table(unstructured_data):
         columns = compute_column_widths(
             unstructured_data.unstructured_data_items,
-            ["media_type", "group_by", "data"],
-            [16, 8, 8],
+            ["media_type", "group_by", "data", "accessable"],
+            [16, 8, 8, 16],
         )
         print_table_header(columns)
 
         data_items = list(unstructured_data.unstructured_data_items)
         data_items.sort(key=unstructured_sort)
         for udi in data_items:
-            data = [udi.media_type, udi.group_by, udi.data]
+            data = [udi.media_type, udi.group_by, udi.data, udi.accessable]
             print_table_entry(data, columns)
 
     def compute_column_widths(items, names, mins):
