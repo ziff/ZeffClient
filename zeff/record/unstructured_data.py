@@ -47,7 +47,7 @@ class UnstructuredDataItem:
     data: str
     media_type: str
     group_by: Optional[str] = None
-    accessable: str = dataclasses.field(
+    accessible: str = dataclasses.field(
         default="", init=False, repr=False, compare=False
     )
 
@@ -91,4 +91,4 @@ class UnstructuredDataItem:
             value = resp.reason
         else:
             value = f"Unknown URL scheme {parts[0]}"
-        object.__setattr__(self, "accessable", value)
+        object.__setattr__(self, "accessible", value)
