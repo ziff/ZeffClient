@@ -81,8 +81,7 @@ class UnstructuredDataItem:
                 value = "not a file"
             else:
                 try:
-                    with path.open("r") as f:
-                        pass
+                    path.open("r").close()
                 except OSError as err:
                     value = str(err)
         elif parts[0] in ["http", "https"]:

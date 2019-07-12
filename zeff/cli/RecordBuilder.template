@@ -32,7 +32,7 @@ if __name__ == "__main__":
     from logging import basicConfig, DEBUG
     import errno
     import argparse
-    from zeff.cli import format_record_restructuredtext
+    from zeff.record import format_record_restructuredtext
 
     if sys.version_info < (3, 7):
         raise Exception("{0} requires Python 3.7.".format(sys.argv[0]))

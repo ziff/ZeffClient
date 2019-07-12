@@ -61,12 +61,14 @@ clean_cache:		## Clean caches
 
 
 build:				## Build into ``./build`` directory
+	@echo Updating build tools
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e .
 	python setup.py build
 
 
 test:				## Run test suite
+	@echo Updating test tools
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e ".[tests]"
 	python -m pytest --cov=zeff && \

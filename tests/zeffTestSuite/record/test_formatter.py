@@ -2,13 +2,13 @@
 
 import pytest
 from io import StringIO
-from zeff.cli import format_record_restructuredtext
 from zeff.record import (
     Record,
     StructuredData,
     StructuredDataItem,
     UnstructuredData,
     UnstructuredDataItem,
+    format_record_restructuredtext,
 )
 
 

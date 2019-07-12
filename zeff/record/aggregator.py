@@ -66,9 +66,9 @@ def aggregation(cls_container, container_prop_name=None, contained_prop_name=Non
             if not isinstance(value, cls_container):
                 raise TypeError(f"Container must be of type {cls_container.__name__}")
             setattr(self, container_attr_name, value)
-            if not hasattr(getattr(self, container_attr_name), contained_attr_name):
-                setattr(cls_container, contained_attr_name, set())
-            getattr(getattr(self, container_attr_name), contained_attr_name).add(self)
+            if not hasattr(value, contained_attr_name):
+                setattr(value, contained_attr_name, set())
+            getattr(value, contained_attr_name).add(self)
 
         def deleter(self):
             getattr(getattr(self, container_attr_name), contained_attr_name).remove(

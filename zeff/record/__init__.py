@@ -29,3 +29,4 @@ __all__ = [
 from .record import *
 from .structured_data import *
 from .unstructured_data import *
+from .formatter import *

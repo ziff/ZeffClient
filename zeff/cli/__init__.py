@@ -77,7 +77,6 @@ import argparse
 
 from .template import *
 from .run import *
-from .formatter import *
 
 
 def parse_commandline(args=None):
