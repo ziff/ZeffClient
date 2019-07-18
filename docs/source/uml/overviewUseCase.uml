@@ -1,0 +1,19 @@
+
+@startuml
+
+left to right direction
+
+actor Alice
+actor Bob
+
+rectangle zeff {
+	(Train) .> (Upload) : depends on
+	(Predict) .> (Train) : depends on
+	Alice -> (Upload)
+	Alice -> (Train)
+	Bob -> (Predict)
+}
+
+
+@enduml
+

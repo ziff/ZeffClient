@@ -1,0 +1,17 @@
+@startuml
+
+start
+
+while (more records to generate?) is (yes)
+    :generate record config;
+	repeat
+		:build record;
+		:upload record;
+	repeat while (upload error?) is (yes)
+	->no;
+endwhile
+->no;
+:train;
+stop
+
+@enduml

@@ -1,17 +1,17 @@
-"""Zeff generate, build, and upload runner."""
+"""Zeff record generate, build, validate, and upload pipeline."""
 __docformat__ = "reStructuredText en"
-__all__ = ["runner"]
+__all__ = ["pipeline"]
 
 import logging
 
-LOGGER_BUILDER = logging.getLogger("zeffclient.record_builder")
-LOGGER_GENERATOR = logging.getLogger("zeffclient.record_generator")
-LOGGER_VALIDATOR = logging.getLogger("zeffclient.record_validator")
-LOGGER_SUBMITTER = logging.getLogger("zeffclient.record_submitter")
+LOGGER_BUILDER = logging.getLogger("zeffclient.record.builder")
+LOGGER_GENERATOR = logging.getLogger("zeffclient.record.generator")
+LOGGER_VALIDATOR = logging.getLogger("zeffclient.record.validator")
+LOGGER_SUBMITTER = logging.getLogger("zeffclient.record.submitter")
 
 
-def runner(generator, builder, validator, uploader):
-    """Process runner for record building, validating, and submitting.
+def pipeline(generator, builder, validator, uploader):
+    """Pipeline to generate, build, validate, and upload records.
 
     :param generator: The object that will generate configuration strings.
 
@@ -23,16 +23,24 @@ def runner(generator, builder, validator, uploader):
 
     :param uploader: A callable object that will take a record to be
         uploaded.
+
+    :return: True if all records were built, validated, and uploaded.
+        False if any record could not be built, failed validation,
+        or did not upload.
     """
+    ret = True
 
     for config in generator:
         record = builder(config)
         try:
             validator(record)
         except TypeError as err:
+            ret = False
             LOGGER_VALIDATOR.exception(err)
             continue
         except ValueError as err:
+            ret = False
             LOGGER_VALIDATOR.exception(err)
             continue
         uploader(record)
+    return ret

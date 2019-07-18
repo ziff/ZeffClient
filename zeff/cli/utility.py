@@ -1,11 +1,10 @@
-"""Zeff subcommand to run a record generator."""
+"""Zeff commandline processing utilities."""
 __docformat__ = "reStructuredText en"
-__all__ = ["run_subparser"]
 
 import sys
 import os
-import logging
 import urllib
+import logging
 import errno
 import importlib
 
@@ -13,19 +12,16 @@ import zeff
 import zeff.record
 
 
-def run_subparser(subparsers):
-    """Add the ``run`` sub-system as a subparser for argparse.
-
-    :param subparsers: The subparser to add the run sub-command.
-    """
+def subparser_pipeline(parser):
+    """Add CLI arguments necessary for pipeline."""
 
     def create_url(argstr):
+        """Create file URL from argstr when used for argparse type."""
         parts = urllib.parse.urlsplit(argstr)
         if not parts.scheme:
             argstr = urllib.parse.urlunsplit(("file", "", argstr, "", ""))
         return argstr
 
-    parser = subparsers.add_parser("run")
     parser.add_argument(
         "record-builder",
         help="Name of python class that will build a record given a URL to record sources.",
@@ -47,14 +43,13 @@ def run_subparser(subparsers):
     parser.add_argument(
         "--dry-run",
         choices=["configuration", "build", "validate"],
-        help="""Do a dry run up to the specified phase and print
-            results to stdout.""",
+        help="""Dry run to specified phase with no changes to Zeff Cloud,
+            and print results to stdout.""",
     )
-    parser.set_defaults(func=run)
 
 
-def run(options):
-    """Generate a set of records from options."""
+def build_pipeline(options, zeffcloud):
+    """Build a record upload pipeline based on CLI options."""
 
     def get_mclass(name):
         try:
@@ -81,22 +76,26 @@ def run(options):
     logging.debug("Found record-builder: %s", record_builder)
 
     if options.dry_run == "configuration":
-        zeff.runner(record_url_generator(options.url), print, lambda r: r, lambda r: r)
+        upload_success = zeff.pipeline(
+            record_url_generator(options.url), print, lambda r: r, lambda r: r
+        )
     elif options.dry_run == "build":
-        zeff.runner(
+        upload_success = zeff.pipeline(
             record_url_generator(options.url), record_builder, lambda r: r, lambda r: r
         )
     elif options.dry_run == "validate":
-        zeff.runner(
+        upload_success = zeff.pipeline(
             record_url_generator(options.url),
-            record_builder,
+            record_builder(),
             lambda r: zeff.record.Record.validate,
             lambda r: r,
         )
     else:
-        zeff.runner(
+        upload_success = zeff.pipeline(
             record_url_generator(options.url),
-            record_builder,
+            record_builder(),
             lambda r: zeff.record.Record.validate,
-            lambda r: print("Uploader not built"),
+            zeffcloud,
         )
+
+    return upload_success

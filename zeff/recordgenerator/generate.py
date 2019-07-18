@@ -4,7 +4,7 @@ __all__ = ["generate"]
 
 import logging
 
-LOGGER = logging.getLogger("zeffclient.record_generator")
+LOGGER = logging.getLogger("zeffclient.record.generator")
 
 
 def generate(record_url_generator, record_builder):

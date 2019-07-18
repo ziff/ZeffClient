@@ -76,7 +76,10 @@ import pathlib
 import argparse
 
 from .template import *
-from .run import *
+from .upload import *
+from .train import *
+from .predict import *
+from .record_builders import *
 
 
 def parse_commandline(args=None):
@@ -101,7 +104,9 @@ def parse_commandline(args=None):
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    run_subparser(subparsers)
+    upload_subparser(subparsers)
+    train_subparser(subparsers)
+    predict_subparser(subparsers)
     template_subparser(subparsers)
 
     options = parser.parse_args(args=args)

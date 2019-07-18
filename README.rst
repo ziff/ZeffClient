@@ -73,7 +73,7 @@ Contributing
 Before creating your first commit:
 
    1. Install `pre-commit <https://pre-commit.com>`_.
-   2. Execcute ``pre-commit install``
+   2. Execute ``pre-commit install``
 
 Before creating any commit:
 

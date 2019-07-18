@@ -1,0 +1,29 @@
+"""Zeff subcommand to use machine to make a prediction."""
+__docformat__ = "reStructuredText en"
+__all__ = ["predict_subparser"]
+
+import zeff
+import zeff.record
+from .utility import subparser_pipeline, build_pipeline
+
+
+def predict_subparser(subparsers):
+    """Add the ``predict`` sub-system as a subparser for argparse.
+
+    :param subparsers: The subparser to add the predict sub-command.
+    """
+
+    parser = subparsers.add_parser("predict")
+    subparser_pipeline(parser)
+    parser.add_argument(
+        "--model-version",
+        dest="model-version",
+        help="""Choose a model version to make prediction against. The
+            default is the latest valid version.""",
+    )
+    parser.set_defaults(func=predict)
+
+
+def predict(options):
+    """Generate a set of records from options."""
+    build_pipeline(options, zeff.Predictor())
