@@ -19,7 +19,8 @@ def main(args=None):
     import logging
     import zeff.cli
 
-    options = zeff.cli.parse_commandline(args=args)
+    config = zeff.cli.load_configuration()
+    options = zeff.cli.parse_commandline(args=args, config=config)
 
     try:
         import ast

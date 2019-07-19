@@ -73,6 +73,7 @@ __version__ = "0.0.0"
 
 import sys
 import pathlib
+import configparser
 import argparse
 
 from .template import *
@@ -82,7 +83,29 @@ from .predict import *
 from .record_builders import *
 
 
-def parse_commandline(args=None):
+def load_configuration():
+    """Load configuration from standard locations.
+
+    Configuration files will be loaded in the following order such that
+    values in later files will override those in earlier files:
+
+        1. ``/etc/zeff.conf``
+        2. ``${HOME}/.config/zeff/zeff.conf``
+        3. ``./zeff.conf``
+    """
+    config = configparser.ConfigParser()
+    config.read(
+        [
+            pathlib.Path(__file__).parent / "configuration_default.conf",
+            "/etc/zeff.conf",
+            pathlib.Path.home() / ".config" / "zeff" / "zeff.conf",
+            pathlib.Path.cwd() / ".zeff.conf",
+        ]
+    )
+    return config
+
+
+def parse_commandline(args=None, config=None):
     """Construct commandline parser and then parse arguments."""
     package = pathlib.PurePosixPath(__file__).parent
     parser = argparse.ArgumentParser()
@@ -104,9 +127,9 @@ def parse_commandline(args=None):
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    upload_subparser(subparsers)
-    train_subparser(subparsers)
-    predict_subparser(subparsers)
+    upload_subparser(subparsers, config)
+    train_subparser(subparsers, config)
+    predict_subparser(subparsers, config)
     template_subparser(subparsers)
 
     options = parser.parse_args(args=args)

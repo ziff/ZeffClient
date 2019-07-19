@@ -1,0 +1,70 @@
+---
+accept:
+    - application/json
+headers:
+    x-api-key: '{org_id}#{user_id}'
+resources:
+    ###
+    ### Datasets
+    ###
+    -
+        tag: tag:zeff.com,2019-07:datasets/list
+        path: /v2.5/datasets
+        methods: ["GET"]
+    -
+        tag: tag:zeff.com,2019-07:datasets/add
+        path: /v2.5/datasets
+        methods: ["POST"]
+    -
+        tag: tag:zeff.com,2019-07:datasets
+        path: /v2.5/datasets/{id}
+        methods: ["GET", "DELETE"]
+    -
+        tag: tag:zeff.com,2019-07:datasets
+        path: /v2.5/datasets/{id}/edit
+        methods: ["PUT"]
+    -
+        tag: tag:zeff.com,2019-07:datasets/notifications
+        path: /v2.5/datasets/{id}/enableNotification
+        methods: ["PUT"]
+    -
+        tag: tag:zeff.com,2019-07:datasets/train
+        path: /v2.5/datasets/{id}/train
+        methods: ["GET", "PUT"]
+
+    ###
+    ### Models
+    ###
+    -
+        tag: tag:zeff.com,2019-07:models/list
+        path: /v2.5/datasets/{id}/models
+        methods: ["GET"]
+    -
+        tag: tag:zeff.com,2019-07:model
+        path: /v2.5/datasets/{id}/models/{veresion}
+        methods: ["GET", "PUT"]
+
+    ###
+    ### Model Records
+    ###
+
+    ###
+    ### Temporal Model Records
+    ###
+
+    ###
+    ### Dataset Records
+    ###
+
+    ###
+    ### Temporal Dataset Records
+    ###
+
+    ###
+    ### Orgs
+    ###
+
+    ###
+    ### Org Users
+    ###
+...

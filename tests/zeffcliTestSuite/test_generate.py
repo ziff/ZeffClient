@@ -18,6 +18,9 @@ def test_upload_generate():
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
         },
+        server_url="http://example.com/test/",
+        org_id="example",
+        user_id="alice",
         dry_run="configuration",
         no_train=False,
     )

@@ -4,9 +4,10 @@ __all__ = ["train_subparser"]
 
 import zeff
 import zeff.record
+from .server import subparser_server
 
 
-def train_subparser(subparsers):
+def train_subparser(subparsers, config):
     """Add the ``train`` sub-system as a subparser for argparse.
 
     :param subparsers: The subparser to add the train sub-command.
@@ -21,6 +22,7 @@ def train_subparser(subparsers):
             stop - stop training the current session,
             kill - kill current session and mark as invalid""",
     )
+    subparser_server(parser, config)
     parser.set_defaults(func=train)
 
 

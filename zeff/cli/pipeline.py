@@ -10,9 +10,10 @@ import importlib
 
 import zeff
 import zeff.record
+from .server import subparser_server
 
 
-def subparser_pipeline(parser):
+def subparser_pipeline(parser, config):
     """Add CLI arguments necessary for pipeline."""
 
     def create_url(argstr):
@@ -40,6 +41,7 @@ def subparser_pipeline(parser):
         default=os.getcwd(),
         help="Base URL for records (default: current working directory)",
     )
+    subparser_server(parser, config)
     parser.add_argument(
         "--dry-run",
         choices=["configuration", "build", "validate"],
