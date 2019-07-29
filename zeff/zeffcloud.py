@@ -82,8 +82,8 @@ class ZeffCloudResourceMap(dict):
         info = yaml.load(stream, Loader=yaml.SafeLoader)
         def_accept = info["accept"]
         def_headers = info["headers"]
-        for c_res in info["resources"]:
-            urlparts[2] = f"{rootpath}/{c_res['path']}"
+        for c_res in info["links"]:
+            urlparts[2] = f"{rootpath}/{c_res['anchor']}"
             urlparts[2] = urlparts[2].replace("//", "/")
             urlparts[2] = urlparts[2].lstrip("/")
             resource = ZeffCloudResource(
@@ -96,6 +96,7 @@ class ZeffCloudResourceMap(dict):
                     for key, value in c_res.get("headers", def_headers).items()
                 },
             )
+            print(resource)
             super().__setitem__(resource.tag_url, resource)
 
     def __str__(self):

@@ -3,33 +3,37 @@ accept:
     - application/json
 headers:
     x-api-key: '{org_id}#{user_id}'
-resources:
+links:
     ###
     ### Datasets
     ###
     -
         tag: tag:zeff.com,2019-07:datasets/list
-        path: /v2.5/datasets
+        anchor: /v2.5/datasets
+        # hreflang: Langauge-Tag
+        # media: MediaDesc
+        # title: string-value
+        # type: media-type
         methods: ["GET"]
     -
         tag: tag:zeff.com,2019-07:datasets/add
-        path: /v2.5/datasets
+        anchor: /v2.5/datasets
         methods: ["POST"]
     -
         tag: tag:zeff.com,2019-07:datasets
-        path: /v2.5/datasets/{id}
+        anchor: /v2.5/datasets/{id}
         methods: ["GET", "DELETE"]
     -
         tag: tag:zeff.com,2019-07:datasets
-        path: /v2.5/datasets/{id}/edit
+        anchor: /v2.5/datasets/{id}/edit
         methods: ["PUT"]
     -
         tag: tag:zeff.com,2019-07:datasets/notifications
-        path: /v2.5/datasets/{id}/enableNotification
+        anchor: /v2.5/datasets/{id}/enableNotification
         methods: ["PUT"]
     -
         tag: tag:zeff.com,2019-07:datasets/train
-        path: /v2.5/datasets/{id}/train
+        anchor: /v2.5/datasets/{id}/train
         methods: ["GET", "PUT"]
 
     ###
@@ -37,11 +41,11 @@ resources:
     ###
     -
         tag: tag:zeff.com,2019-07:models/list
-        path: /v2.5/datasets/{id}/models
+        anchor: /v2.5/datasets/{id}/models
         methods: ["GET"]
     -
         tag: tag:zeff.com,2019-07:model
-        path: /v2.5/datasets/{id}/models/{veresion}
+        anchor: /v2.5/datasets/{id}/models/{veresion}
         methods: ["GET", "PUT"]
 
     ###
