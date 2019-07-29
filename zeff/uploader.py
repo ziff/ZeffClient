@@ -8,13 +8,23 @@ LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
 
 class Uploader:
-    """Class that handles uploading of records to Zeff Cloud."""
+    """Generator that will yield successfully uploaded records.
+
+    :param upstream: Generator of records to be uploaded.
+    """
 
     # pylint: disable=too-few-public-methods
 
-    def __init__(self):
+    def __init__(self, upstream):
         """TBW."""
+        self.upstream = upstream
 
-    def __call__(self, record):
-        """TBW."""
+    def __iter__(self):
+        """Return this object."""
+        return self
+
+    def __next__(self):
+        """Return the next item from the container."""
+        record = next(self.upstream)
         print("Uploader not built", record)
+        return record

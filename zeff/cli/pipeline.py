@@ -28,7 +28,7 @@ def subparser_pipeline(parser, config):
         help="Name of python class that will build a record given a URL to record sources.",
     )
     parser.add_argument(
-        "--record-url-generator",
+        "--record-config-generator",
         default="zeff.recordgenerator.entry_url_generator",
         help="""Name of python class that will generate URLs to record
             sources (default: generates a URL for each entry in base
@@ -51,7 +51,16 @@ def subparser_pipeline(parser, config):
 
 
 def build_pipeline(options, zeffcloud):
-    """Build a record upload pipeline based on CLI options."""
+    """Build a record upload pipeline based on CLI options.
+
+    :param options: Command line options.
+
+    :param zeffcloud: An upload generator that takes a record builder
+        generator as the first parameter.
+
+    :return: A tuple of Counter and last generator in pipeline. The
+        counter counts the number of configuration records generated.
+    """
 
     def get_mclass(name):
         try:
@@ -71,33 +80,23 @@ def build_pipeline(options, zeffcloud):
             print(f"{name} class `{c_name}` not found in {m_name}", file=sys.stderr)
             sys.exit(errno.EINVAL)
 
-    record_url_generator = get_mclass("record_url_generator")
-    logging.debug("Found record-url-generator: %s", record_url_generator)
+    record_config_generator = get_mclass("record_config_generator")
+    logging.debug("Found record-config-generator: %s", record_config_generator)
+    generator = record_config_generator(options.url)
+    counter = zeff.Counter(generator)
+    generator = counter
+    if options.dry_run == "configuration":
+        return counter, generator
 
     record_builder = get_mclass("record-builder")
     logging.debug("Found record-builder: %s", record_builder)
+    generator = zeff.record_builder_generator(generator, record_builder)
+    if options.dry_run == "build":
+        return counter, generator
 
-    if options.dry_run == "configuration":
-        upload_success = zeff.pipeline(
-            record_url_generator(options.url), print, lambda r: r, lambda r: r
-        )
-    elif options.dry_run == "build":
-        upload_success = zeff.pipeline(
-            record_url_generator(options.url), record_builder, lambda r: r, lambda r: r
-        )
-    elif options.dry_run == "validate":
-        upload_success = zeff.pipeline(
-            record_url_generator(options.url),
-            record_builder(),
-            lambda r: zeff.record.Record.validate,
-            lambda r: r,
-        )
-    else:
-        upload_success = zeff.pipeline(
-            record_url_generator(options.url),
-            record_builder(),
-            lambda r: zeff.record.Record.validate,
-            zeffcloud,
-        )
+    generator = zeff.validation_generator(generator)
+    if options.dry_run == "validate":
+        return counter, generator
 
-    return upload_success
+    generator = zeffcloud(generator)
+    return counter, generator

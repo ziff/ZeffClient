@@ -31,8 +31,11 @@ __copyright__ = """Copyright (C) 2019 Ziff, Inc."""
 __docformat__ = "reStructuredText en"
 __version__ = "0.0.0"
 
-from .pipeline import pipeline
+from .pipeline import Counter, record_builder_generator, validation_generator
 from .pipeline_observation import *
+
+# pylint: disable=duplicate-code
+
 from .uploader import Uploader
 from .trainer import Trainer
 from .predictor import Predictor

@@ -26,7 +26,9 @@ def upload_subparser(subparsers, config):
 
 def upload(options):
     """Generate a set of records from options."""
-    upload_success = build_pipeline(options, zeff.Uploader())
-    if upload_success and not options.no_train:
+    counter, records = build_pipeline(options, zeff.Uploader)
+    for record in records:
+        print(record)
+    if counter.count == 0 and not options.no_train:
         trainer = zeff.Trainer()
         trainer.start()

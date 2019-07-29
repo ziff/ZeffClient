@@ -1,6 +1,6 @@
 """Zeff record generate, build, validate, and upload pipeline."""
 __docformat__ = "reStructuredText en"
-__all__ = ["pipeline"]
+__all__ = ["Counter", "record_builder_generator", "validation_generator"]
 
 import logging
 
@@ -10,37 +10,54 @@ LOGGER_VALIDATOR = logging.getLogger("zeffclient.record.validator")
 LOGGER_SUBMITTER = logging.getLogger("zeffclient.record.submitter")
 
 
-def pipeline(generator, builder, validator, uploader):
-    """Pipeline to generate, build, validate, and upload records.
+class Counter:
+    """Generator that will count objects that pass through it."""
 
-    :param generator: The object that will generate configuration strings.
+    def __init__(self, upstream):
+        """Create a new counter on ``upstream``."""
+        self.count = 0
+        self.upstream = iter(upstream)
 
-    :param builder: A callable object that will take a configuration string
-        and return a record.
+    def __iter__(self):
+        """Return this object."""
+        return self
 
-    :param validator: A callable object that will take a record to be
-        validated.
+    def __next__(self):
+        """Return the next item from the container."""
+        ret = next(self.upstream)
+        self.count = self.count + 1
+        return ret
 
-    :param uploader: A callable object that will take a record to be
-        uploaded.
 
-    :return: True if all records were built, validated, and uploaded.
-        False if any record could not be built, failed validation,
-        or did not upload.
+def record_builder_generator(upstream, builder):
+    """Build and yield records from a configuration upstream.
+
+    :param upstream: The object that will generate configuration
+       strings used to build a record.
+
+    :param builder: Callable object that will take a configuration
+       string and return a record.
     """
-    ret = True
-
-    for config in generator:
+    for config in upstream:
         record = builder(config)
+        yield record
+
+
+def validation_generator(upstream):
+    """Validate records from generator and yield valid records.
+
+    :param upstream: A generator that will yield record objects that
+        may be validated.
+
+    :return: Records that only have validation warnings.
+    """
+    for record in upstream:
         try:
-            validator(record)
+            record.validate()
+            yield record
         except TypeError as err:
-            ret = False
-            LOGGER_VALIDATOR.exception(err)
+            LOGGER_VALIDATOR.exception(err, record=record)
             continue
         except ValueError as err:
-            ret = False
-            LOGGER_VALIDATOR.exception(err)
+            LOGGER_VALIDATOR.exception(err, record=record)
             continue
-        uploader(record)
-    return ret

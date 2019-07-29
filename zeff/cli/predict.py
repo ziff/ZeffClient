@@ -26,4 +26,7 @@ def predict_subparser(subparsers, config):
 
 def predict(options):
     """Generate a set of records from options."""
-    build_pipeline(options, zeff.Predictor())
+    _, records = build_pipeline(options, zeff.Predictor)
+    for record in records:
+        print(record)
+    # Get the results and output them

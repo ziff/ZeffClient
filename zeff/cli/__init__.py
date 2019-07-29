@@ -35,9 +35,9 @@ Options
         Show version for zeff.
 
     ``--verbose {{critical,error,warning,info,debug}}``
-        Change the logging level of the handler named ``console`` from
-        the logging configuration file. This has no effect on any other
-        handler or logger.
+        Change the logging level of the handler named ``console``
+        from the logging configuration file. This has no effect
+        on any other handler or logger.
 
     ``--logging-conf path``
         Custom logging configuration file using Python logging
@@ -54,6 +54,14 @@ Sub-commands
     ``template``
         Create a record builder template.
 
+
+Configuration
+=============
+
+Configuration may be done through command line options or may be
+set in configuration files that are read from standard locations
+(``/etc/zeff.conf``, ``${HOME}/.config/zeff/zeff.conf``,
+``.zeff.conf``), if the file exists.
 
 
 Exit Status
@@ -97,7 +105,7 @@ def load_configuration():
     config.read(
         [
             pathlib.Path(__file__).parent / "configuration_default.conf",
-            "/etc/zeff.conf",
+            pathlib.Path("/etc/zeff.conf"),
             pathlib.Path.home() / ".config" / "zeff" / "zeff.conf",
             pathlib.Path.cwd() / ".zeff.conf",
         ]
@@ -106,7 +114,22 @@ def load_configuration():
 
 
 def parse_commandline(args=None, config=None):
-    """Construct commandline parser and then parse arguments."""
+    """Construct commandline parser and then parse arguments.
+
+    :param args: Command line arguments to parse. If none are
+        given then ``sys.argv`` is used by default.
+
+    :param config: ``configparser.ConfigParser`` object that
+        contains the initial configuration of the system. The
+        default is to use ``load_configuration`` to get the
+        default.
+
+    :return: A namespace that contains attributes with values
+        determined from ``config`` and then command line
+        arguments.
+    """
+    if config is None:
+        config = load_configuration()
     package = pathlib.PurePosixPath(__file__).parent
     parser = argparse.ArgumentParser()
     parser.add_argument(

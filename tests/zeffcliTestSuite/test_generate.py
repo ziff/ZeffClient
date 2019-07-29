@@ -13,7 +13,7 @@ from zeff.cli.predict import predict
 def test_upload_generate():
     dirpath = os.path.dirname(__file__)
     options = types.SimpleNamespace(
-        record_url_generator="zeff.recordgenerator.entry_url_generator",
+        record_config_generator="zeff.recordgenerator.entry_url_generator",
         url=f"file://{dirpath}",
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
@@ -51,7 +51,8 @@ def test_train_generate():
 def test_predict_generate():
     dirpath = os.path.dirname(__file__)
     options = types.SimpleNamespace(
-        record_url_generator="zeff.recordgenerator.entry_url_generator",
+        record_config_generator="zeff.recordgenerator.entry_url_generator",
+        record_config_argument=[],
         url=f"file://{dirpath}",
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
