@@ -3,7 +3,6 @@ __docformat__ = "reStructuredText en"
 
 import sys
 import os
-import urllib
 import logging
 import errno
 import importlib
@@ -15,13 +14,6 @@ from .server import subparser_server
 
 def subparser_pipeline(parser, config):
     """Add CLI arguments necessary for pipeline."""
-
-    def create_url(argstr):
-        """Create file URL from argstr when used for argparse type."""
-        parts = urllib.parse.urlsplit(argstr)
-        if not parts.scheme:
-            argstr = urllib.parse.urlunsplit(("file", "", argstr, "", ""))
-        return argstr
 
     parser.add_argument(
         "record-builder",
@@ -36,10 +28,8 @@ def subparser_pipeline(parser, config):
     )
     parser.add_argument(
         "--records-base",
-        dest="url",
-        type=create_url,
         default=os.getcwd(),
-        help="Base URL for records (default: current working directory)",
+        help="Base for records (default: current working directory)",
     )
     subparser_server(parser, config)
     parser.add_argument(
@@ -82,7 +72,7 @@ def build_pipeline(options, zeffcloud):
 
     record_config_generator = get_mclass("record_config_generator")
     logging.debug("Found record-config-generator: %s", record_config_generator)
-    generator = record_config_generator(options.url)
+    generator = record_config_generator(options.records_base)
     counter = zeff.Counter(generator)
     generator = counter
     if options.dry_run == "configuration":
@@ -90,7 +80,7 @@ def build_pipeline(options, zeffcloud):
 
     record_builder = get_mclass("record-builder")
     logging.debug("Found record-builder: %s", record_builder)
-    generator = zeff.record_builder_generator(generator, record_builder)
+    generator = zeff.record_builder_generator(generator, record_builder())
     if options.dry_run == "build":
         return counter, generator
 

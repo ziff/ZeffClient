@@ -13,8 +13,8 @@ from zeff.cli.predict import predict
 def test_upload_generate():
     dirpath = os.path.dirname(__file__)
     options = types.SimpleNamespace(
-        record_config_generator="zeff.recordgenerator.entry_url_generator",
-        url=f"file://{dirpath}",
+        record_config_generator="zeff.recordgenerator.entry_generator",
+        records_base=dirpath,
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
         },
@@ -28,6 +28,8 @@ def test_upload_generate():
     sys.stdout = strio
     upload(options)
     sys.stdout = sys.__stdout__
+
+    print(strio.getvalue())
 
     urls = [url.strip() for url in strio.getvalue().split("\n") if url]
     names = [os.path.basename(url) for url in urls]
@@ -51,9 +53,9 @@ def test_train_generate():
 def test_predict_generate():
     dirpath = os.path.dirname(__file__)
     options = types.SimpleNamespace(
-        record_config_generator="zeff.recordgenerator.entry_url_generator",
+        record_config_generator="zeff.recordgenerator.entry_generator",
         record_config_argument=[],
-        url=f"file://{dirpath}",
+        records_base=dirpath,
         **{
             "record-builder": "tests.zeffcliTestSuite.TestRecordBuilder.TestRecordBuilder"
         },

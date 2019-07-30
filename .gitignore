@@ -33,6 +33,8 @@ sdist/
 *.egg-info
 pip-wheel-metadata
 
+example
+
 __pycache__
 *.pyc
 *.pyo

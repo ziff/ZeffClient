@@ -2,6 +2,7 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["upload_subparser"]
 
+import logging
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
@@ -29,6 +30,8 @@ def upload(options):
     counter, records = build_pipeline(options, zeff.Uploader)
     for record in records:
         print(record)
+        # logging.debug("Record %s built, validated, and uploaded.", record)
     if counter.count == 0 and not options.no_train:
+        logging.debug("All records uploaded, start training.")
         trainer = zeff.Trainer()
         trainer.start()

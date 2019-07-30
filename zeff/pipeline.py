@@ -53,7 +53,9 @@ def validation_generator(upstream):
     """
     for record in upstream:
         try:
+            LOGGER_VALIDATOR.info("Begin validation record %s", record.name)
             record.validate()
+            LOGGER_VALIDATOR.info("End validation record %s", record.name)
             yield record
         except TypeError as err:
             LOGGER_VALIDATOR.exception(err, record=record)
