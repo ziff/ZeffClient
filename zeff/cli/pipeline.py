@@ -20,6 +20,11 @@ def subparser_pipeline(parser, config):
         help="Name of python class that will build a record given a URL to record sources.",
     )
     parser.add_argument(
+        "--datasetid",
+        default=config["zeff.dataset"]["datasetid"],
+        help="""Dataset id use with records.""",
+    )
+    parser.add_argument(
         "--record-config-generator",
         default="zeff.recordgenerator.entry_url_generator",
         help="""Name of python class that will generate URLs to record
@@ -88,5 +93,11 @@ def build_pipeline(options, zeffcloud):
     if options.dry_run == "validate":
         return counter, generator
 
-    generator = zeffcloud(generator)
+    generator = zeffcloud(
+        generator,
+        options.server_url,
+        options.org_id,
+        options.user_id,
+        options.datasetid,
+    )
     return counter, generator

@@ -5,7 +5,6 @@ import dataclasses
 from typing import List, Dict
 import urllib.parse
 import yaml
-from deprecated import deprecated
 
 
 @dataclasses.dataclass
@@ -48,29 +47,26 @@ class ZeffCloudResourceMap(dict):
     """Zeff Cloud map of tag URI to resources."""
 
     @classmethod
-    @deprecated(version="0.0.0", reason="For initial testing only.")
-    def default_instance(cls):
-        """Get the default instance of the mapping."""
-        config = {"org_id": "example.com", "user_id": "kilroy"}
-        if not hasattr(cls, "_ZeffCloudResourceMap__default_instance"):
-            from pathlib import Path
+    def default_info(cls):
+        """Return the default zeffcloud YAML configuration file."""
+        from pathlib import Path
 
-            dpath = Path(__file__).parent
-            path = dpath / "zeffcloud.yml"
-            with open(path, "r") as yfile:
-                cls.__default_instance = ZeffCloudResourceMap(yfile, config)
-        return cls.__default_instance
+        dpath = Path(__file__).parent
+        path = dpath / "zeffcloud.yml"
+        with open(path, "r") as yfile:
+            info = yaml.load(yfile, Loader=yaml.SafeLoader)
+        return info
 
-    def __init__(self, stream, config, root="https://api.ziff.ai/"):
+    def __init__(self, info, root="https://api.ziff.ai/", **argv):
         """Create mapping of tag URL to ZeffCloudResource objects.
 
-        :param stream: Stream that contains the resource mapping.
-
-        :param config: Configuration object that contains specific items
-            such as ``org_id`` or ``user_id``.
+        :param info: Mapping information.
 
         :param root: This is the root of the Zeff Cloud REST server. The
             default is the public location ``https://api.ziff.ai/``.
+
+        :param **: Other arguments where the key the name used in a
+            variable.
         """
         super().__init__()
         self.__root = root
@@ -79,7 +75,6 @@ class ZeffCloudResourceMap(dict):
         urlparts[3] = None
         urlparts[4] = None
 
-        info = yaml.load(stream, Loader=yaml.SafeLoader)
         def_accept = info["accept"]
         def_headers = info["headers"]
         for c_res in info["links"]:
@@ -92,11 +87,10 @@ class ZeffCloudResourceMap(dict):
                 c_res["methods"],
                 accept=c_res.get("accept", def_accept),
                 headers={
-                    key: value.format(**config)
+                    key: value.format(**argv)
                     for key, value in c_res.get("headers", def_headers).items()
                 },
             )
-            print(resource)
             super().__setitem__(resource.tag_url, resource)
 
     def __str__(self):

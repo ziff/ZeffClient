@@ -21,19 +21,19 @@ links:
         methods: ["POST"]
     -
         tag: tag:zeff.com,2019-07:datasets
-        anchor: /v2.5/datasets/{id}
+        anchor: /v2.5/datasets/{datasetid}
         methods: ["GET", "DELETE"]
     -
         tag: tag:zeff.com,2019-07:datasets
-        anchor: /v2.5/datasets/{id}/edit
+        anchor: /v2.5/datasets/{datasetid}/edit
         methods: ["PUT"]
     -
         tag: tag:zeff.com,2019-07:datasets/notifications
-        anchor: /v2.5/datasets/{id}/enableNotification
+        anchor: /v2.5/datasets/{datasetid}/enableNotification
         methods: ["PUT"]
     -
         tag: tag:zeff.com,2019-07:datasets/train
-        anchor: /v2.5/datasets/{id}/train
+        anchor: /v2.5/datasets/{datasetid}/train
         methods: ["GET", "PUT"]
 
     ###
@@ -41,11 +41,11 @@ links:
     ###
     -
         tag: tag:zeff.com,2019-07:models/list
-        anchor: /v2.5/datasets/{id}/models
+        anchor: /v2.5/datasets/{datasetid}/models
         methods: ["GET"]
     -
         tag: tag:zeff.com,2019-07:model
-        anchor: /v2.5/datasets/{id}/models/{veresion}
+        anchor: /v2.5/datasets/{datasetid}/models/{version}
         methods: ["GET", "PUT"]
 
     ###
@@ -59,6 +59,19 @@ links:
     ###
     ### Dataset Records
     ###
+    -
+        tag: tag:zeff.com,2019-07:records/list
+        anchor: /v2.5/datasets/{datasetid}/records
+        methods: ["GET"]
+    -
+        tag: tag:zeff.com,2019-07:records/add
+        anchor: /v2.5/datasets/{datasetid}/records
+        methods: ["POST"]
+    -
+        tag: tag:zeff.com,2019-07:records
+        anchor: /v2.5/datasets/{datasetid}/records/{recordid}
+        methods: ["GET", "PUT", "DELETE"]
+
 
     ###
     ### Temporal Dataset Records
