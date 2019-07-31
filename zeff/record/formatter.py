@@ -101,14 +101,12 @@ def format_record_restructuredtext(
     print(record)
     print("=" * len(str(record)))
 
-    for structured_data in record.structured_data:
-        print()
-        print("Structured Data")
-        print("===============")
-        print_structured_item_table(structured_data)
+    print()
+    print("Structured Data")
+    print("===============")
+    print_structured_item_table(record.structured_data)
 
-    for unstructured_data in record.unstructured_data:
-        print(file=out)
-        print("Unstructured Data", file=out)
-        print("=================", file=out)
-        print_unstructured_item_table(unstructured_data)
+    print(file=out)
+    print("Unstructured Data", file=out)
+    print("=================", file=out)
+    print_unstructured_item_table(record.unstructured_data)

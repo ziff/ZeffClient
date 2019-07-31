@@ -7,11 +7,11 @@ __all__ = ["StructuredData", "StructuredDataItem"]
 import dataclasses
 import enum
 
-from .record import Record
+# from .record import Record
 from .aggregator import aggregation
 
 
-@aggregation(Record)
+# @aggregation(Record)
 @dataclasses.dataclass(unsafe_hash=True)
 class StructuredData:
     """This represents a set of structured data items."""

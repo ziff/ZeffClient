@@ -19,18 +19,9 @@ def test_build():
     appropriate containers.
     """
     r = Record("Test")
-    assert len(list(r.structured_data)) == 0
-    assert len(list(r.unstructured_data)) == 0
 
     ## StructuredData
-
-    sd = StructuredData()
-    assert sd.record is None
-    sd.record = r
-    assert sd.record == r
-    assert sd in list(r.structured_data)
-    assert len(list(r.structured_data)) == 1
-
+    sd = r.structured_data
     sdi = StructuredDataItem(
         "TestName",
         1.1,
@@ -43,14 +34,7 @@ def test_build():
     assert len(list(sd.structured_data_items)) == 1
 
     ## UnstructuredData
-
-    ud = UnstructuredData()
-    assert ud.record is None
-    ud.record = r
-    assert ud.record == r
-    assert ud in list(r.unstructured_data)
-    assert len(list(r.unstructured_data)) == 1
-
+    ud = r.unstructured_data
     udi = UnstructuredDataItem("http://example.com", UnstructuredDataItem.FileType.TEXT)
     assert udi.unstructured_data is None
     udi.unstructured_data = ud
@@ -60,25 +44,3 @@ def test_build():
     ## Validate
 
     r.validate()
-
-
-def test_invalid_aggregation():
-    """Test that invalid associations are prohibited.
-
-    This mainly tests that ``aggregation`` is working correctly.
-    """
-    r0 = Record("Test0")
-    r1 = Record("Test1")
-    sd = StructuredData()
-
-    with pytest.raises(ValueError):
-        sd.record = None
-
-    with pytest.raises(TypeError):
-        sd.record = "SPAM"
-
-    sd.record = r0
-    with pytest.raises(ValueError):
-        sd.record = r1
-
-    del sd.record

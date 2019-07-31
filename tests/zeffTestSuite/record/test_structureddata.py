@@ -9,8 +9,6 @@ from zeff.record import StructuredData, StructuredDataItem
 def test_build():
     """Test building a StructuredData."""
     sd = StructuredData()
-    assert sd.record is None
-
     sdi0 = StructuredDataItem(
         "TestName",
         1.1,

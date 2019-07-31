@@ -9,8 +9,6 @@ from zeff.record import UnstructuredData, UnstructuredDataItem
 def test_valid_http():
     """Test building a UnstructuredData."""
     ud = UnstructuredData()
-    assert ud.record is None
-
     udi = UnstructuredDataItem("http://example.com", UnstructuredDataItem.FileType.TEXT)
     assert udi.unstructured_data is None
     udi.unstructured_data = ud
@@ -24,8 +22,6 @@ def test_valid_http():
 def test_valid_file():
     """Test building a UnstructuredData with file."""
     ud = UnstructuredData()
-    assert ud.record is None
-
     udi = UnstructuredDataItem(f"file://{__file__}", UnstructuredDataItem.FileType.TEXT)
     assert udi.unstructured_data is None
     udi.unstructured_data = ud

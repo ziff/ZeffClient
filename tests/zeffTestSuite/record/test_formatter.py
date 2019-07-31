@@ -46,7 +46,7 @@ def test_format_record_restructuredtext():
     ]
     for info in sd_info:
         sdi = StructuredDataItem(*info)
-        sdi.structured_data = list(r.structured_data)[0]
+        sdi.structured_data = r.structured_data
 
     ud_info = [
         ("https://www.example.com/properties/photo_5.jpg", "image/jpg", "home_photo"),
@@ -55,7 +55,7 @@ def test_format_record_restructuredtext():
     ]
     for info in ud_info:
         udi = UnstructuredDataItem(*info)
-        udi.unstructured_data = list(r.unstructured_data)[0]
+        udi.unstructured_data = r.unstructured_data
 
     result = StringIO()
     format_record_restructuredtext(r, out=result)
