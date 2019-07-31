@@ -29,8 +29,7 @@ def upload(options):
     """Generate a set of records from options."""
     counter, records = build_pipeline(options, zeff.Uploader)
     for record in records:
-        print(record)
-        # logging.debug("Record %s built, validated, and uploaded.", record)
+        logging.debug(record)
     if counter.count == 0 and not options.no_train:
         logging.debug("All records uploaded, start training.")
         trainer = zeff.Trainer()

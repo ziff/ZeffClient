@@ -5,8 +5,8 @@ __docformat__ = "reStructuredText en"
 __all__ = ["UnstructuredData", "UnstructuredDataItem"]
 
 import dataclasses
+import enum
 from typing import Optional
-import re
 import urllib.parse
 import urllib.request
 import pathlib
@@ -33,43 +33,46 @@ class UnstructuredDataItem:
     """Single item in UnstruturedData.
 
     An unstructured data time is a URI to ``data`` that has an
-    associated media type and may be grouped with other similar
+    associated file type and may be grouped with other similar
     data.
 
     :property data: URI to the raw data.
 
-    :property media_type: An RFC 2046 media type of the data.
+    :property file_type: The file type of the data:
+        - IMAGE
+        - AUDIO
+        - VIDEO
+        - DOCUMENT
+        - META
+        - TEXT
 
     :property group_by: Name of a groupd this item should be
         associated with.
+
     """
 
+    class FileType(enum.Enum):
+        """File type of a unstructured data item."""
+
+        IMAGE = enum.auto()
+        AUDIO = enum.auto()
+        VIDEO = enum.auto()
+        DOCUMENT = enum.auto()
+        META = enum.auto()
+        TEXT = enum.auto()
+
     data: str
-    media_type: str
+    file_type: FileType
     group_by: Optional[str] = None
     accessible: str = dataclasses.field(
         default="", init=False, repr=False, compare=False
     )
 
-    re_mediatype = re.compile(
-        r"""(?ax)^
-            (?P<type>.[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_]{0,126})
-            /
-            (?P<subtype>.[a-zA-Z0-9][a-zA-Z0-9!#$&\-^_]{0,126})
-            (?P<parameters>(;
-                [!#$%&'*+\-.0-9A-Z^_`a-z|~]+
-                =
-                (([!#$%&'*+\-.0-9A-Z^_`a-z|~]+)|("[^"]+"))
-            )*)
-            $"""
-    )
-
     def validate(self):
         """Validate to ensure that it will be accepted on upload."""
 
-        # RFC6838 Media Type Specifications and Registration Procedures
-        if UnstructuredDataItem.re_mediatype.match(self.media_type) is None:
-            raise ValueError(f"Invalid media type `{self.media_type}`")
+        if self.file_type not in UnstructuredDataItem.FileType:
+            raise TypeError(f"file_type `{self.file_type}` is not FileType")
 
         parts = urllib.parse.urlsplit(self.data)
         if parts[0] == "file":

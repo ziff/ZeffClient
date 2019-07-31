@@ -1,11 +1,16 @@
 """Zeff Cloud REST resource."""
 __docformat__ = "reStructuredText en"
 
+import logging
 import requests
+
+LOGGER = logging.getLogger("zeffclient.record.uploader")
 
 
 class Resource:
     """Base class for accessing Zeff Cloud REST resources."""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, resource_map):
         """Link object to REST resource.
@@ -43,10 +48,10 @@ class Resource:
 
         reqhdrs = dict(res.headers)
         reqhdrs["Accept"] = "application/json"
+        if method in ["POST", "PUT"]:
+            reqhdrs["Content-Type"] = "application/json"
         if headers:
             reqhdrs.update(headers)
 
         resp = requests.request(method, url, data=data, headers=reqhdrs)
-        if resp.status_code != 200:
-            return {}
-        return resp.json()
+        return resp

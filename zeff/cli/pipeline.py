@@ -2,7 +2,6 @@
 __docformat__ = "reStructuredText en"
 
 import sys
-import os
 import logging
 import errno
 import importlib
@@ -16,25 +15,26 @@ def subparser_pipeline(parser, config):
     """Add CLI arguments necessary for pipeline."""
 
     parser.add_argument(
-        "record-builder",
+        "records-builder",
         help="Name of python class that will build a record given a URL to record sources.",
     )
     parser.add_argument(
-        "--datasetid",
-        default=config["zeff.dataset"]["datasetid"],
+        "--records-datasetid",
+        default=config["records"]["datasetid"],
         help="""Dataset id use with records.""",
     )
     parser.add_argument(
-        "--record-config-generator",
-        default="zeff.recordgenerator.entry_url_generator",
-        help="""Name of python class that will generate URLs to record
-            sources (default: generates a URL for each entry in base
-            directory.""",
+        "--records-config-generator",
+        default=config["records"]["config_generator"],
+        help=f"""Name of python class that will generate URLs to record
+            sources (default: {config["records"]["config_generator"]})""",
     )
     parser.add_argument(
-        "--records-base",
-        default=os.getcwd(),
-        help="Base for records (default: current working directory)",
+        "--records-config-url",
+        default=config["records"]["config_url"],
+        help=f"""URL or localpath as the single argument to a
+            record-config-generator
+            (default: `{config["records"]["config_url"]}`)""",
     )
     subparser_server(parser, config)
     parser.add_argument(
@@ -58,10 +58,10 @@ def build_pipeline(options, zeffcloud):
     """
 
     def get_mclass(name):
+        path = getattr(options, name)
+        logging.debug("Look for %s: `%s`", name, path)
+        m_name, c_name = path.rsplit(".", 1)
         try:
-            path = getattr(options, name)
-            logging.debug("Look for %s: `%s`", name, path)
-            m_name, c_name = path.rsplit(".", 1)
             module = importlib.import_module(m_name)
             logging.debug("Found module `%s`", m_name)
             return getattr(module, c_name)
@@ -75,17 +75,17 @@ def build_pipeline(options, zeffcloud):
             print(f"{name} class `{c_name}` not found in {m_name}", file=sys.stderr)
             sys.exit(errno.EINVAL)
 
-    record_config_generator = get_mclass("record_config_generator")
+    record_config_generator = get_mclass("records_config_generator")
     logging.debug("Found record-config-generator: %s", record_config_generator)
-    generator = record_config_generator(options.records_base)
+    generator = record_config_generator(options.records_config_url)
     counter = zeff.Counter(generator)
     generator = counter
     if options.dry_run == "configuration":
         return counter, generator
 
-    record_builder = get_mclass("record-builder")
-    logging.debug("Found record-builder: %s", record_builder)
-    generator = zeff.record_builder_generator(generator, record_builder())
+    records_builder = get_mclass("records-builder")
+    logging.debug("Found records-builder: %s", records_builder)
+    generator = zeff.record_builder_generator(generator, records_builder())
     if options.dry_run == "build":
         return counter, generator
 
@@ -98,6 +98,6 @@ def build_pipeline(options, zeffcloud):
         options.server_url,
         options.org_id,
         options.user_id,
-        options.datasetid,
+        options.records_datasetid,
     )
     return counter, generator

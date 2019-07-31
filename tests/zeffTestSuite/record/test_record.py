@@ -51,7 +51,7 @@ def test_build():
     assert ud in list(r.unstructured_data)
     assert len(list(r.unstructured_data)) == 1
 
-    udi = UnstructuredDataItem("http://example.com", "text/plain")
+    udi = UnstructuredDataItem("http://example.com", UnstructuredDataItem.FileType.TEXT)
     assert udi.unstructured_data is None
     udi.unstructured_data = ud
     assert udi in list(ud.unstructured_data_items)

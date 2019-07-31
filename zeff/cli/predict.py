@@ -2,6 +2,7 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["predict_subparser"]
 
+import logging
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
@@ -28,5 +29,5 @@ def predict(options):
     """Generate a set of records from options."""
     _, records = build_pipeline(options, zeff.Predictor)
     for record in records:
-        print(record)
+        logging.debug(record)
     # Get the results and output them

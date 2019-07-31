@@ -23,12 +23,12 @@ class RecordEncoder(json.JSONEncoder):
         if isinstance(o, Record):
             ret = {}
             ret["name"] = {
-                "uniqueName": o.name,
+                "uniqueName": str(o.name),
                 "sortAscending": True,
                 "holdoutRecord": True,
             }
-            ret["structuredData"] = [d for d in o.structured_data]
-            ret["unstructuredData"] = [d for d in o.unstructured_data]
+            ret["structuredData"] = [d for d in o.structured_data][0]
+            ret["unstructuredData"] = [d for d in o.unstructured_data][0]
             return ret
         elif isinstance(o, StructuredData):
             return [item for item in o.structured_data_items]
@@ -42,6 +42,10 @@ class RecordEncoder(json.JSONEncoder):
         elif isinstance(o, UnstructuredData):
             return [item for item in o.unstructured_data_items]
         elif isinstance(o, UnstructuredDataItem):
-            return {"data": o.data, "fileType": o.media_type, "groupByName": o.group_by}
+            return {
+                "data": o.data,
+                "fileType": o.file_type.name,
+                "groupByName": o.group_by,
+            }
         else:
             return super().default(o)

@@ -5,6 +5,21 @@
 __copyright__ = """Copyright (C) 2019 Ziff, Inc."""
 __docformat__ = "reStructuredText en"
 
+import os
+import pytest
+
+
+@pytest.fixture(scope="function")
+def chdir(request):
+    oldcwd = os.getcwd()
+    newcwd = os.path.dirname(request.fspath)
+    os.chdir(newcwd)
+
+    def reset():
+        os.chdir(oldcwd)
+
+    request.addfinalizer(reset)
+
 
 def OFF_load_tests(loader, tests, pattern):
     import importlib

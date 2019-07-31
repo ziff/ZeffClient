@@ -32,10 +32,6 @@ class Uploader:
         )
         self.cloud_records = Records(self.datasetid, self.resource_map)
 
-        # REMOVE THIS
-        for spam_records in self.cloud_records:
-            print(spam_records)
-
     def __iter__(self):
         """Return this object."""
         return self

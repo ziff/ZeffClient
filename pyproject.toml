@@ -9,4 +9,5 @@
 
 
 [tool.black]
+line-length = 88
 
