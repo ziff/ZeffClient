@@ -27,8 +27,8 @@ class RecordEncoder(json.JSONEncoder):
                 "sortAscending": True,
                 "holdoutRecord": True,
             }
-            ret["structuredData"] = [d for d in o.structured_data][0]
-            ret["unstructuredData"] = [d for d in o.unstructured_data][0]
+            ret["structuredData"] = o.structured_data
+            ret["unstructuredData"] = o.unstructured_data
             return ret
         elif isinstance(o, StructuredData):
             return [item for item in o.structured_data_items]

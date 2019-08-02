@@ -30,9 +30,7 @@ class HousePriceRecordBuilder:
         return record
 
     def add_structured_items(self, record, id):
-
-        # Create a new structured data element
-        sd = StructuredData()
+        sd = record.structured_data
 
         # Select all the properties from the database for the record
         sql = f"SELECT * FROM properties WHERE id={id}"
@@ -60,12 +58,9 @@ class HousePriceRecordBuilder:
 
         # Clean up then add the structured data object to the record
         cursor.close()
-        sd.record = record
 
     def add_unstructured_items(self, record, id):
-
-        # Create an unstructured data object
-        ud = UnstructuredData()
+        ud = record.unstructured_data
 
         # Select all the property imaages for the record
         sql = f"SELECT * FROM property_images WHERE property_id={id}"
@@ -85,7 +80,6 @@ class HousePriceRecordBuilder:
 
         # Clean up then add the unstructured data object to the record
         cursor.close()
-        ud.record = record
 
 
 if __name__ == "__main__":
