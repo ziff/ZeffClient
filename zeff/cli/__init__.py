@@ -77,7 +77,8 @@ The following exit values shall be returned:
 """
 __copyright__ = """Copyright (C) 2019 Ziff, Inc."""
 __docformat__ = "reStructuredText en"
-__version__ = "0.0.0"
+
+from zeff import __version__
 
 import sys
 import pathlib

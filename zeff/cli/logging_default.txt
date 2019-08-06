@@ -4,20 +4,20 @@
         'level': 'INFO',
         'handlers': ['console']
     },
-	'loggers': {
+    'loggers': {
         'zeffclient.record.builder': {
             'level': 'DEBUG',
         },
-		'zeffclient.record.generator': {
+        'zeffclient.record.generator': {
             'level': 'DEBUG',
-		},
-		'zeffclient.record.validator': {
+        },
+        'zeffclient.record.validator': {
             'level': 'DEBUG',
-		},
-		'zeffclient.record.uploader': {
+        },
+        'zeffclient.record.uploader': {
             'level': 'DEBUG',
-		},
-	},
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',

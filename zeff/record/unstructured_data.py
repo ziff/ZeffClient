@@ -11,11 +11,9 @@ import urllib.parse
 import urllib.request
 import pathlib
 
-# from .record import Record
 from .aggregator import aggregation
 
 
-# @aggregation(Record)
 @dataclasses.dataclass(unsafe_hash=True)
 class UnstructuredData:
     """This represents a set of unstructured data items."""

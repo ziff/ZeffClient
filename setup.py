@@ -12,4 +12,10 @@ import os
 
 from setuptools import setup, find_packages
 
-setup()
+setup(
+    use_scm_version={
+        "write_to": os.path.join(
+            os.path.dirname(__file__), "build", "lib", "zeff", "version.py"
+        )
+    }
+)
