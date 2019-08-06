@@ -30,7 +30,12 @@ Loggers
 __copyright__ = """Copyright (C) 2019 Ziff, Inc."""
 __docformat__ = "reStructuredText en"
 
-from .version import version as __version__
+import pkg_resources
+
+try:
+    __version__ = pkg_resources.get_distribution("ZeffClient").version
+except pkg_resources.DistributionNotFound as err:
+    __version__ = "0.0.0"
 
 
 from .pipeline import Counter, record_builder_generator, validation_generator
