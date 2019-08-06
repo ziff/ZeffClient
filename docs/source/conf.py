@@ -27,7 +27,6 @@ from pkg_resources import get_distribution
 
 release = get_distribution("ZeffClient").version
 
-# for example take major/minor
 version = ".".join(release.split(".")[:2])
 
 
