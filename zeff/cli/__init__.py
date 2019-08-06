@@ -61,7 +61,7 @@ Configuration
 Configuration may be done through command line options or may be
 set in configuration files that are read from standard locations
 (``/etc/zeff.conf``, ``${HOME}/.config/zeff/zeff.conf``,
-``.zeff.conf``), if the file exists.
+``${PWD}/zeff.conf``), if the file exists.
 
 
 Exit Status
@@ -99,7 +99,7 @@ def load_configuration():
 
         1. ``/etc/zeff.conf``
         2. ``${HOME}/.config/zeff/zeff.conf``
-        3. ``./zeff.conf``
+        3. ``${PWD}/zeff.conf``
 
     Variable substitution is available where a variable is of the form
     ``${section:option}``. If section is omitted then the current section
