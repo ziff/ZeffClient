@@ -11,7 +11,7 @@ namespace ZeffClient.record {
 
 	class StructuredData {
 	}
-	StructuredData "1" *-- "0..*" StructuredDataItem : items
+	StructuredData "1" *-- "1" StructuredDataItem : items
 
 	class StructuredDataItem {
 		name: String
@@ -23,7 +23,7 @@ namespace ZeffClient.record {
 
 	class UnstructuredData {
 	}
-	UnstructuredData "1" *-- "0..*" UnstructuredDataItem : items
+	UnstructuredData "1" *-- "1" UnstructuredDataItem : items
 
 	class UnstructuredDataItem {
 		data: URI

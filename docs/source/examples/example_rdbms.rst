@@ -117,7 +117,7 @@ Record Builder
          def add_structured_items(self, record, id):
 
              # Create a new structured data element
-             sd = StructuredData()
+             sd = record.structured_data
 
              # Select all the properties from the database for the record
              sql = f"SELECT * FROM properties WHERE id={id}"
@@ -143,9 +143,8 @@ Record Builder
                  sdi = StructuredDataItem(name=key, value=value, data_type=dtype)
                  sdi.structured_data = sd
 
-             # Clean up then add the structured data object to the record
+             # Clean up
              cursor.close()
-             sd.record = record
 
    C. When you execute this you should see everything from step 8 with
       additional structured data table that will look similar to, but
@@ -177,7 +176,7 @@ Record Builder
           def add_unstructured_items(self, record, id):
 
               # Create an unstructured data object
-              ud = UnstructuredData()
+              ud = record.unstructured_data
 
               # Select all the property imaages for the record
               sql = f"SELECT * FROM property_images WHERE property_id={id}"
@@ -195,9 +194,8 @@ Record Builder
                   udi = UnstructuredDataItem(url, media_type, group_by=group_by)
                   udi.unstructured_data = ud
 
-              # Clean up then add the unstructured data object to the record
+              # Clean up
               cursor.close()
-              ud.record = record
 
     C. When you execute this you should see everything from step 8 with
        additional structured data table that will look similar to, but
@@ -212,4 +210,5 @@ Record Builder
            +============+============+==================================+
            | image/jpg  | home_photo | https://example.com/photo_38.jpg |
            +------------+------------+----------------------------------+
+
 

@@ -136,7 +136,7 @@ Record Builder
                  row = row[0]
 
              # Create a new structured data element
-             sd = StructuredData()
+             sd = record.structured_data
 
              # Process each field in the record except for `id` and
              # add it as a structured data item to the structured data
@@ -156,9 +156,6 @@ Record Builder
                  # structured data object
                  sdi = StructuredDataItem(name=key, value=value, data_type=dtype)
                  sdi.structured_data = sd
-
-             # Add the structured data object to the record
-             sd.record = record
 
    D. When you execute this you should see everything from step 8 with
       additional structured data table that will look similar to, but
@@ -192,7 +189,7 @@ Record Builder
              img_path = path / f"images_{id}"
 
              # Create an unstructured data object
-             ud = UnstructuredData()
+             ud = record.unstructured_data
 
              # Process each jpeg file in the image path, create an
              # unstructured data item, and add that to the unstructured
@@ -205,9 +202,6 @@ Record Builder
                  group_by = "home_photo"
                  udi = UnstructuredDataItem(url, media_type, group_by=group_by)
                  udi.unstructured_data = ud
-
-             # Add the unstructured data object to the record
-             ud.record = record
 
    C. When you execute this you should see everything from step 8 with
       additional structured data table that will look similar to, but
@@ -222,3 +216,5 @@ Record Builder
           +============+==========+========================================+
           | image/jpg  | None     | file://images_1395678/property003.jpeg |
           +------------+----------+----------------------------------------+
+
+
