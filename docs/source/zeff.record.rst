@@ -29,11 +29,6 @@ StructuredData
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: zeff.record.StructuredDataItem
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 UnstructuredData
 ^^^^^^^^^^^^^^^^
 
@@ -41,9 +36,3 @@ UnstructuredData
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. automodule:: zeff.record.UnstructuredDataItem
-   :members:
-   :undoc-members:
-   :show-inheritance:
-

@@ -58,13 +58,11 @@ def format_record_restructuredtext(
 
     def print_structured_item_table(structured_data):
         columns = compute_column_widths(
-            structured_data.structured_data_items,
-            ["name", "data_type", "target", "value"],
-            [16, 8, 6, 32],
+            structured_data, ["name", "data_type", "target", "value"], [16, 8, 6, 32]
         )
         print_table_header(columns)
 
-        data_items = list(structured_data.structured_data_items)
+        data_items = list(structured_data)
         data_items.sort(key=structured_sort)
         for sdi in data_items:
             data = [sdi.name, sdi.data_type.name, sdi.target.name, sdi.value]
@@ -72,13 +70,13 @@ def format_record_restructuredtext(
 
     def print_unstructured_item_table(unstructured_data):
         columns = compute_column_widths(
-            unstructured_data.unstructured_data_items,
+            unstructured_data,
             ["file_type", "group_by", "data", "accessible"],
             [8, 8, 8, 16],
         )
         print_table_header(columns)
 
-        data_items = list(unstructured_data.unstructured_data_items)
+        data_items = list(unstructured_data)
         data_items.sort(key=unstructured_sort)
         for udi in data_items:
             data = [udi.file_type, udi.group_by, udi.data, udi.accessible]

@@ -3,64 +3,51 @@
 import pytest
 import enum
 
-from zeff.record import StructuredData, StructuredDataItem
+from zeff.record import StructuredData
 
 
 def test_build():
     """Test building a StructuredData."""
-    sd = StructuredData()
-    sdi0 = StructuredDataItem(
-        "TestName",
-        1.1,
-        StructuredDataItem.DataType.CONTINUOUS,
-        StructuredDataItem.Target.YES,
+    sd0 = StructuredData(
+        "TestName", 1.1, StructuredData.DataType.CONTINUOUS, StructuredData.Target.YES
     )
-    assert sdi0.structured_data is None
-    sdi0.structured_data = sd
-    assert sdi0 in list(sd.structured_data_items)
-    assert len(list(sd.structured_data_items)) == 1
+    assert sd0.record is None
+    sd0.validate()
 
-    sdi1 = StructuredDataItem(
+    sd1 = StructuredData(
         "TestName",
         "TestValue",
-        StructuredDataItem.DataType.CATEGORY,
-        StructuredDataItem.Target.YES,
+        StructuredData.DataType.CATEGORY,
+        StructuredData.Target.YES,
     )
-    assert sdi1.structured_data is None
-    sdi1.structured_data = sd
-    assert sdi1 in list(sd.structured_data_items)
-    assert len(list(sd.structured_data_items)) == 2
-
-    sd.validate()
+    assert sd1.record is None
+    sd1.validate()
 
 
 def test_invalid_strutureddatatype():
-    """Attempt to add an invalid data type to a StructuredDataItem."""
+    """Attempt to add an invalid data type to a StructuredData."""
     with pytest.raises(TypeError):
-        sdi = StructuredDataItem(
-            "TestName",
-            "TestValue",
-            StructuredDataItem.DataType.CONTINUOUS,
-            "TestTarget",
+        sd = StructuredData(
+            "TestName", "TestValue", StructuredData.DataType.CONTINUOUS, "TestTarget"
         )
-        sdi.validate()
+        sd.validate()
     with pytest.raises(TypeError):
-        sdi = StructuredDataItem(
-            "TestName", "TestValue", "TestDataType", StructuredDataItem.Target.YES
+        sd = StructuredData(
+            "TestName", "TestValue", "TestDataType", StructuredData.Target.YES
         )
-        sdi.validate()
+        sd.validate()
 
 
 def test_invalid_structuredtarget():
     """TBW"""
     with pytest.raises(ValueError):
-        sdi = StructuredDataItem(
+        sd = StructuredData(
             "TestName",
             "abc",
-            StructuredDataItem.DataType.CONTINUOUS,
-            StructuredDataItem.Target.NO,
+            StructuredData.DataType.CONTINUOUS,
+            StructuredData.Target.NO,
         )
-        sdi.validate()
+        sd.validate()
 
 
 def test_unknown_structureddatatype():
@@ -71,14 +58,11 @@ def test_unknown_structureddatatype():
         CATEGORY = enum.auto()
         SPAM = enum.auto()
 
-    old = StructuredDataItem.DataType
+    old = StructuredData.DataType
     with pytest.raises(ValueError):
-        StructuredDataItem.DataType = TestDataType
-        sdi = StructuredDataItem(
-            "TestName",
-            "abc",
-            StructuredDataItem.DataType.SPAM,
-            StructuredDataItem.Target.NO,
+        StructuredData.DataType = TestDataType
+        sd = StructuredData(
+            "TestName", "abc", StructuredData.DataType.SPAM, StructuredData.Target.NO
         )
-        sdi.validate()
-    StructuredDataItem.DataType = old
+        sd.validate()
+    StructuredData.DataType = old

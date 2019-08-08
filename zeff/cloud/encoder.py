@@ -3,13 +3,7 @@ __docformat__ = "reStructuredText en"
 
 
 import json
-from zeff.record import (
-    Record,
-    StructuredData,
-    StructuredDataItem,
-    UnstructuredData,
-    UnstructuredDataItem,
-)
+from zeff.record import Record, StructuredData, UnstructuredData
 
 
 class RecordEncoder(json.JSONEncoder):
@@ -27,12 +21,10 @@ class RecordEncoder(json.JSONEncoder):
                 "sortAscending": True,
                 "holdoutRecord": True,
             }
-            ret["structuredData"] = o.structured_data
-            ret["unstructuredData"] = o.unstructured_data
+            ret["structuredData"] = list(o.structured_data)
+            ret["unstructuredData"] = list(o.unstructured_data)
             return ret
         elif isinstance(o, StructuredData):
-            return [item for item in o.structured_data_items]
-        elif isinstance(o, StructuredDataItem):
             return {
                 "name": o.name,
                 "value": o.value,
@@ -40,8 +32,6 @@ class RecordEncoder(json.JSONEncoder):
                 "target": o.target.name,
             }
         elif isinstance(o, UnstructuredData):
-            return [item for item in o.unstructured_data_items]
-        elif isinstance(o, UnstructuredDataItem):
             return {
                 "data": o.data,
                 "fileType": o.file_type.name,

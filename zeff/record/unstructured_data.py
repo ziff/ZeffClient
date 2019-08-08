@@ -2,7 +2,7 @@
 # pylint: disable=duplicate-code
 # pylint: disable=too-few-public-methods
 __docformat__ = "reStructuredText en"
-__all__ = ["UnstructuredData", "UnstructuredDataItem"]
+__all__ = ["UnstructuredData"]
 
 import dataclasses
 import enum
@@ -11,42 +11,25 @@ import urllib.parse
 import urllib.request
 import pathlib
 
+from .record import Record
 from .aggregator import aggregation
 
 
-@dataclasses.dataclass(unsafe_hash=True)
-class UnstructuredData:
-    """This represents a set of unstructured data items."""
-
-    def validate(self):
-        """Validate to ensure that it will be accepted on upload."""
-        # pylint: disable=no-member
-        for item in self.unstructured_data_items:
-            item.validate()
-
-
-@aggregation(UnstructuredData, contained_prop_name="unstructured_data_items")
+@aggregation(Record, contained_prop_name="unstructured_data")
 @dataclasses.dataclass(eq=True, frozen=True)
-class UnstructuredDataItem:
-    """Single item in UnstruturedData.
+class UnstructuredData:
+    """Single item of unstructured data in a record.
 
-    An unstructured data time is a URI to ``data`` that has an
+    An unstructured data is a URI to ``data`` that has an
     associated file type and may be grouped with other similar
     data.
 
     :property data: URI to the raw data.
 
-    :property file_type: The file type of the data:
-        - IMAGE
-        - AUDIO
-        - VIDEO
-        - DOCUMENT
-        - META
-        - TEXT
+    :property file_type: The file type of the data.
 
     :property group_by: Name of a groupd this item should be
         associated with.
-
     """
 
     class FileType(enum.Enum):
@@ -69,7 +52,7 @@ class UnstructuredDataItem:
     def validate(self):
         """Validate to ensure that it will be accepted on upload."""
 
-        if self.file_type not in UnstructuredDataItem.FileType:
+        if self.file_type not in UnstructuredData.FileType:
             raise TypeError(f"file_type `{self.file_type}` is not FileType")
 
         parts = urllib.parse.urlsplit(self.data)

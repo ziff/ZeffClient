@@ -2,13 +2,7 @@
 
 import pytest
 
-from zeff.record import (
-    Record,
-    StructuredData,
-    StructuredDataItem,
-    UnstructuredData,
-    UnstructuredDataItem,
-)
+from zeff.record import Record, StructuredData, UnstructuredData
 
 
 def test_build():
@@ -21,25 +15,20 @@ def test_build():
     r = Record("Test")
 
     ## StructuredData
-    sd = r.structured_data
-    sdi = StructuredDataItem(
-        "TestName",
-        1.1,
-        StructuredDataItem.DataType.CONTINUOUS,
-        StructuredDataItem.Target.YES,
+    sd = StructuredData(
+        "TestName", 1.1, StructuredData.DataType.CONTINUOUS, StructuredData.Target.YES
     )
-    assert sdi.structured_data is None
-    sdi.structured_data = sd
-    assert sdi in list(sd.structured_data_items)
-    assert len(list(sd.structured_data_items)) == 1
+    assert sd.record is None
+    sd.record = r
+    assert sd in list(r.structured_data)
+    assert len(list(r.structured_data)) == 1
 
     ## UnstructuredData
-    ud = r.unstructured_data
-    udi = UnstructuredDataItem("http://example.com", UnstructuredDataItem.FileType.TEXT)
-    assert udi.unstructured_data is None
-    udi.unstructured_data = ud
-    assert udi in list(ud.unstructured_data_items)
-    assert len(list(ud.unstructured_data_items)) == 1
+    ud = UnstructuredData("http://example.com", UnstructuredData.FileType.TEXT)
+    assert ud.record is None
+    ud.record = r
+    assert ud in list(r.unstructured_data)
+    assert len(list(r.unstructured_data)) == 1
 
     ## Validate
 

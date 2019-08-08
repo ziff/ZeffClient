@@ -10,22 +10,13 @@ namespace ZeffClient.record {
 	Record "1" *-- "0..*" UnstructuredData
 
 	class StructuredData {
-	}
-	StructuredData "1" *-- "1" StructuredDataItem : items
-
-	class StructuredDataItem {
 		name: String
 		value: Bytes
 		data_type: [continuous, discrete]
 		target: [yes, no, ignore]
 	}
 
-
-	class UnstructuredData {
-	}
-	UnstructuredData "1" *-- "1" UnstructuredDataItem : items
-
-	class UnstructuredDataItem {
+	class UnstructuredData{
 		data: URI
 		media_type: RFC2046
 		group_by: String

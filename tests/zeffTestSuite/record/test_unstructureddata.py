@@ -3,69 +3,55 @@
 import pytest
 import enum
 
-from zeff.record import UnstructuredData, UnstructuredDataItem
+from zeff.record import UnstructuredData
 
 
 def test_valid_http():
     """Test building a UnstructuredData."""
-    ud = UnstructuredData()
-    udi = UnstructuredDataItem("http://example.com", UnstructuredDataItem.FileType.TEXT)
-    assert udi.unstructured_data is None
-    udi.unstructured_data = ud
-    assert udi in list(ud.unstructured_data_items)
-    assert len(list(ud.unstructured_data_items)) == 1
-
+    ud = UnstructuredData("http://example.com", UnstructuredData.FileType.TEXT)
+    assert ud.record is None
     ud.validate()
-    assert udi.accessible == "OK"
+    assert ud.accessible == "OK"
 
 
 def test_valid_file():
     """Test building a UnstructuredData with file."""
-    ud = UnstructuredData()
-    udi = UnstructuredDataItem(f"file://{__file__}", UnstructuredDataItem.FileType.TEXT)
-    assert udi.unstructured_data is None
-    udi.unstructured_data = ud
-    assert udi in list(ud.unstructured_data_items)
-    assert len(list(ud.unstructured_data_items)) == 1
-
+    ud = UnstructuredData(f"file://{__file__}", UnstructuredData.FileType.TEXT)
+    assert ud.record is None
     ud.validate()
-    assert udi.accessible == "OK"
+    assert ud.accessible == "OK"
 
 
 def test_missing_file():
     """Test building a UnstructuredData with missing file."""
-    udi = UnstructuredDataItem("file:///spam", UnstructuredDataItem.FileType.TEXT)
-    udi.validate()
-    assert udi.accessible == "file missing"
+    ud = UnstructuredData("file:///spam", UnstructuredData.FileType.TEXT)
+    ud.validate()
+    assert ud.accessible == "file missing"
 
 
 def test_invalid_file():
     """Test building a UnstructuredData with invalid file."""
-    udi = UnstructuredDataItem("file:///var", UnstructuredDataItem.FileType.TEXT)
-    udi.validate()
-    assert udi.accessible == "not a file"
+    ud = UnstructuredData("file:///var", UnstructuredData.FileType.TEXT)
+    ud.validate()
+    assert ud.accessible == "not a file"
 
 
 def test_permissions_file():
     """Test building a UnstructuredData with no read permissions."""
-    udi = UnstructuredDataItem(
-        "file:///etc/sudoers", UnstructuredDataItem.FileType.TEXT
-    )
-    udi.validate()
-    assert udi.accessible != "OK"
+    ud = UnstructuredData("file:///etc/sudoers", UnstructuredData.FileType.TEXT)
+    ud.validate()
+    assert ud.accessible != "OK"
 
 
 def test_invalid_url_scheme():
     """Test building a UnstructuredData with invalid URL scheme."""
-    udi = UnstructuredDataItem(
-        "spam://example.com/", UnstructuredDataItem.FileType.TEXT
-    )
-    udi.validate()
-    assert udi.accessible.lower().startswith("unknown url scheme")
+    ud = UnstructuredData("spam://example.com/", UnstructuredData.FileType.TEXT)
+    ud.validate()
+    assert ud.accessible.lower().startswith("unknown url scheme")
 
 
 def test_invalid_mediatype():
     """Attempt to set an invalid media type."""
     with pytest.raises(TypeError):
-        udi = UnstructuredDataItem("http://example.com", "InvalidMedia")
-        udi.validate()
+        ud = UnstructuredData("http://example.com", "InvalidMedia")
+        ud.validate()

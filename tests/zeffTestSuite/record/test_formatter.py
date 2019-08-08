@@ -5,9 +5,7 @@ from io import StringIO
 from zeff.record import (
     Record,
     StructuredData,
-    StructuredDataItem,
     UnstructuredData,
-    UnstructuredDataItem,
     format_record_restructuredtext,
 )
 
@@ -15,38 +13,36 @@ from zeff.record import (
 def test_format_record_restructuredtext():
     """TBW."""
     r = Record("Formatted Record")
-    StructuredData().record = r
-    UnstructuredData().record = r
 
     sd_info = [
         (
             "sold_price",
             1368411.0,
-            StructuredDataItem.DataType.CONTINUOUS,
-            StructuredDataItem.Target.NO,
+            StructuredData.DataType.CONTINUOUS,
+            StructuredData.Target.NO,
         ),
         (
             "basement",
             2412.0,
-            StructuredDataItem.DataType.CONTINUOUS,
-            StructuredDataItem.Target.NO,
+            StructuredData.DataType.CONTINUOUS,
+            StructuredData.Target.NO,
         ),
         (
             "garage_parking",
             "uncovered; rv parking; storage above; extra length; workbench",
-            StructuredDataItem.DataType.CATEGORY,
-            StructuredDataItem.Target.NO,
+            StructuredData.DataType.CATEGORY,
+            StructuredData.Target.NO,
         ),
         (
             "lot",
             "auto-part; private",
-            StructuredDataItem.DataType.CATEGORY,
-            StructuredDataItem.Target.NO,
+            StructuredData.DataType.CATEGORY,
+            StructuredData.Target.NO,
         ),
     ]
     for info in sd_info:
-        sdi = StructuredDataItem(*info)
-        sdi.structured_data = r.structured_data
+        sd = StructuredData(*info)
+        sd.record = r
 
     ud_info = [
         ("https://www.example.com/properties/photo_5.jpg", "image/jpg", "home_photo"),
@@ -54,8 +50,8 @@ def test_format_record_restructuredtext():
         ("https://www.example.com/properties/photo_6.jpg", "image/jpg", "home_photo"),
     ]
     for info in ud_info:
-        udi = UnstructuredDataItem(*info)
-        udi.unstructured_data = r.unstructured_data
+        ud = UnstructuredData(*info)
+        ud.record = r
 
     result = StringIO()
     format_record_restructuredtext(r, out=result)

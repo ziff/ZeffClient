@@ -5,9 +5,6 @@ __all__ = ["Record"]
 
 import dataclasses
 
-from .structured_data import StructuredData
-from .unstructured_data import UnstructuredData
-
 
 @dataclasses.dataclass()
 class Record:
@@ -17,13 +14,6 @@ class Record:
     """
 
     name: str
-    structured_data: StructuredData = dataclasses.field(init=False)
-    unstructured_data: UnstructuredData = dataclasses.field(init=False)
-
-    def __post_init__(self):
-        """Add missing required items."""
-        self.structured_data = StructuredData()
-        self.unstructured_data = UnstructuredData()
 
     def validate(self):
         """Validate to ensure that it will be accepted on upload.
@@ -35,9 +25,7 @@ class Record:
             integer but gets a descrete value such as a string).
         """
         # pylint: disable=no-member
-        if self.structured_data is None:
-            raise ValueError("structured_data must be set")
-        self.structured_data.validate()
-        if self.unstructured_data is None:
-            raise ValueError("unstructured_data must be set")
-        self.unstructured_data.validate()
+        for data in self.structured_data:
+            data.validate()
+        for data in self.unstructured_data:
+            data.validate()

@@ -35,21 +35,13 @@ namespace ZeffClient.temporalrecord {
 	File "1" - "1" Events
 	(File, Events) .. FileContext
 
-	class StructuredData {
-	}
-	StructuredData "1" *-- "0..*" StructuredDataItem : items
-
-	class StructuredDataItem {
+	class StructuredData{
 		name: String
 		value: Bytes
 		data_type: (continuous, discrete)
 	}
 
-	class UnstructuredData {
-	}
-	UnstructuredData "1" *-- "0..*" UnstructuredDataItem : items
-
-	class UnstructuredDataItem {
+	class UnstructuredData{
 		data: URI
 		media_type: RFC2046
 		group_by: String

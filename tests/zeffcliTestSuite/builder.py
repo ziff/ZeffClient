@@ -24,22 +24,19 @@ class HousePriceRecordBuilder:
     def __call__(self, config: str) -> Record:
         LOGGER.info("Begin building ``HousePrice`` record from %s", config)
         record = Record(name=config)
-        self.add_structured_items(record, config)
-        self.add_unstructured_items(record, config)
+        self.add_structured_data(record, config)
+        self.add_unstructured_data(record, config)
         LOGGER.info("End building ``HousePrice`` record from %s", config)
         return record
 
-    def add_structured_items(self, record, id):
-        sd = record.structured_data
-
+    def add_structured_data(self, record, id):
         # Select all the properties from the database for the record
         sql = f"SELECT * FROM properties WHERE id={id}"
         cursor = self.conn.cursor()
         row = cursor.execute(sql).fetchone()
 
-        # Process each column in the record except for `id` and
-        # add it as a structured data item to the structured data
-        # object
+        # Process each column in the record except for `id`, create
+        # the structured data, and add it to the record object.
         for key in row.keys():
             if key == "id":
                 continue
@@ -47,36 +44,31 @@ class HousePriceRecordBuilder:
 
             # Is the column a continuous or category datatype
             if isinstance(value, (int, float)):
-                dtype = StructuredDataItem.DataType.CONTINUOUS
+                dtype = StructuredData.DataType.CONTINUOUS
             else:
-                dtype = StructuredDataItem.DataType.CATEGORY
+                dtype = StructuredData.DataType.CATEGORY
 
             # Create the structured data item and add it to the
             # structured data object
-            sdi = StructuredDataItem(name=key, value=value, data_type=dtype)
-            sdi.structured_data = sd
+            sd = StructuredData(name=key, value=value, data_type=dtype)
+            sd.record = record
 
         # Clean up then add the structured data object to the record
         cursor.close()
 
-    def add_unstructured_items(self, record, id):
-        ud = record.unstructured_data
-
+    def add_unstructured_data(self, record, id):
         # Select all the property imaages for the record
         sql = f"SELECT * FROM property_images WHERE property_id={id}"
         cursor = self.conn.cursor()
 
         # Process each row returned in the selection, create an
-        # unstructured data item, and add that to the unstructured
-        # data object. Note that we are assuming that the file-type
-        # for all of these images is a JPEG, but that may be different
-        # in your system.
+        # unstructured data, and add that to the record.
         for row in cursor.execute(sql).fetchall():
             url = row["url"]
-            file_type = UnstructuredDataItem.FileType.IMAGE
+            file_type = UnstructuredData.FileType.IMAGE
             group_by = row["image_type"]
-            udi = UnstructuredDataItem(url, file_type, group_by=group_by)
-            udi.unstructured_data = ud
+            ud = UnstructuredData(url, file_type, group_by=group_by)
+            ud.record = record
 
         # Clean up then add the unstructured data object to the record
         cursor.close()

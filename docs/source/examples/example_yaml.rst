@@ -121,13 +121,13 @@ Record Builder
 
       ::
 
-         self.add_structured_items(record, path, id)
+         self.add_structured_data(record, path, id)
 
    C. Then add the following method:
 
       ::
 
-         def add_structured_items(self, record, path, id):
+         def add_structured_data(self, record, path, id):
              row = None
              with open(path, 'r') as ymlstream:
                  row = [r for r in yaml.load(ymlstream) if r['id'] == id]
@@ -135,12 +135,8 @@ Record Builder
                      return
                  row = row[0]
 
-             # Create a new structured data element
-             sd = record.structured_data
-
              # Process each field in the record except for `id` and
-             # add it as a structured data item to the structured data
-             # object
+             # add it as a structured data to the record object
              for key in row.keys():
                  if key == "id":
                      continue
@@ -148,14 +144,13 @@ Record Builder
 
                  # Is the column a continuous or category datatype
                  if isinstance(value, (int, float)):
-                     dtype = StructuredDataItem.DataType.CONTINUOUS
+                     dtype = StructuredData.DataType.CONTINUOUS
                  else:
-                     dtype = StructuredDataItem.DataType.CATEGORY
+                     dtype = StructuredData.DataType.CATEGORY
 
-                 # Create the structured data item and add it to the
-                 # structured data object
-                 sdi = StructuredDataItem(name=key, value=value, data_type=dtype)
-                 sdi.structured_data = sd
+                 # Create the structured data item and add it to the record
+                 sd = StructuredData(name=key, value=value, data_type=dtype)
+                 sd.record = record
 
    D. When you execute this you should see everything from step 8 with
       additional structured data table that will look similar to, but
@@ -178,30 +173,24 @@ Record Builder
 
        ::
 
-          self.add_unstructured_items(record, path.parent, id)
+          self.add_unstructured_data(record, path.parent, id)
 
     B. Then add the following method:
 
        ::
 
-          def add_unstructured_items(self, record, path, id):
+          def add_unstructured_data(self, record, path, id):
 
               img_path = path / f"images_{id}"
 
-              # Create an unstructured data object
-              ud = record.unstructured_data
-
               # Process each jpeg file in the image path, create an
-              # unstructured data item, and add that to the unstructured
-              # data object. Note that we are assuming that the media-type
-              # for all of these images is a JPEG, but that may be different
-              # in your system.
+              # unstructured data, and add that to the record data object.
               for p in img_path.glob('**/*.jpeg'):
                   url = f"file://{p}"
-                  media_type = "image/jpg"
+                  file_type = UnstructuredData.FileType.IMAGE
                   group_by = "home_photo"
-                  udi = UnstructuredDataItem(url, media_type, group_by=group_by)
-                  udi.unstructured_data = ud
+                  ud = UnstructuredData(url, media_type, group_by=group_by)
+                  ud.record = record
 
     C. When you execute this you should see everything from step 8 with
        additional structured data table that will look similar to, but
