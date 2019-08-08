@@ -2,14 +2,15 @@
 .DS_Store
 
 # CI/CD
-#.codefresh
+# .codefresh
 
 # Docker
-#.dockerignore
+# .dockerignore
 
 # git
-#.git
-#.gitignore
+# .git
+# .gitignore
+# .pre-commit-config.yaml
 
 # Python Compiled
 **/__pycache__
@@ -30,11 +31,11 @@ tmp/
 pip-wheel-metadata
 
 # Unit test / coverage reports
-.pytest_cache/
 .coverage/
-coverage_html_report/
-.mypy_cache/
 .hypothesis/
+.mypy_cache/
+.pytest_cache/
+coverage_html_report/
 
 # Environments
 .venv/
