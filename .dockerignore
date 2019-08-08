@@ -2,14 +2,14 @@
 .DS_Store
 
 # CI/CD
-.codefresh
+#.codefresh
 
 # Docker
-.dockerignore
+#.dockerignore
 
 # git
-.git
-.gitignore
+#.git
+#.gitignore
 
 # Python Compiled
 **/__pycache__
@@ -41,25 +41,15 @@ coverage_html_report/
 venv/
 VENV/
 
-
-### Vim template
-# Swap
+# Vim
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
 [._]sw[a-p]
-
-# Session
 Session.vim
-
-# Temporary
 .netrwhist
 *~
-
-# Auto-generated tag files
 tags
-
-# Persistent undo
 [._]*.un~
 
