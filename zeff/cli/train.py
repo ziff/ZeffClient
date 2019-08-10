@@ -13,11 +13,11 @@ def train_subparser(subparsers, config):
     :param subparsers: The subparser to add the train sub-command.
     """
 
-    parser = subparsers.add_parser("train")
+    parser = subparsers.add_parser("train", help="""Control training sessions.""")
     parser.add_argument(
         "action",
         choices=["start", "stop", "kill"],
-        help="""Proform the given action on Zeff Cloud:
+        help="""Perform the given action on Zeff Cloud:
             start - start training the current session,
             stop - stop training the current session,
             kill - kill current session and mark as invalid""",

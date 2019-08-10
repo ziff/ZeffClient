@@ -86,6 +86,7 @@ import argparse
 
 from zeff import __version__
 
+from .init import *
 from .template import *
 from .upload import *
 from .train import *
@@ -173,12 +174,14 @@ def parse_commandline(args=None, config=None):
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
+    init_subparser(subparsers)
     upload_subparser(subparsers, config)
     train_subparser(subparsers, config)
     predict_subparser(subparsers, config)
     template_subparser(subparsers)
 
     options = parser.parse_args(args=args)
+    options.configuration = config
     if not hasattr(options, "func"):
         parser.print_help()
         sys.exit(1)

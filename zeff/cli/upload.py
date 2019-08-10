@@ -14,7 +14,9 @@ def upload_subparser(subparsers, config):
     :param subparsers: The subparser to add the upload sub-command.
     """
 
-    parser = subparsers.add_parser("upload")
+    parser = subparsers.add_parser(
+        "upload", help="""Build, validate, and upload training records."""
+    )
     subparser_pipeline(parser, config)
     parser.add_argument(
         "--no-train",

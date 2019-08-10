@@ -31,28 +31,32 @@ class StructuredData:
     class Target(enum.Enum):
         """How the data item is to be used in training or inference.
 
-        - YES is a desired outcome to be predicted
-        - NO is an input to consume for prediction
-        - IGNORE do not use in training or predition but may show in reporting
+        - YES
+            This is a desired outcome to be predicted.
+
+        - NO
+            This is an input to consume for predictions.
+
+        - IGNORE
+            Do not use in training or predition but may show in reporting
         """
 
         YES = enum.auto()
-        """Desired outcome to be predicted."""
-
         NO = enum.auto()
-        """Input to consume for prediction."""
-
         IGNORE = enum.auto()
-        """Do not use in training for prediction but may show in reporting."""
 
     class DataType(enum.Enum):
-        """Data type of a structured data item."""
+        """Data type of a structured data item.
+
+        - CONTINUOUS
+            Continuous data type such as integer or floating point.
+
+        - CATEGORY
+            Discrete data type such as a string.
+        """
 
         CONTINUOUS = enum.auto()
-        """Continuous data type such as integer or floating point."""
-
         CATEGORY = enum.auto()
-        """Discrete data type."""
 
     name: str
     value: object

@@ -4,6 +4,7 @@ import sys
 import os
 import io
 import types
+import pathlib
 from . import chdir
 
 import zeff.cli
@@ -17,7 +18,9 @@ def test_upload_generate(chdir):
         "upload",
         "--no-train",
         "--dry-run=validate",
-        "tests.zeffcliTestSuite.builder.HousePriceRecordBuilder",
+        "--records-config-generator=tests.zeffcliTestSuite.generator.HousePriceRecordGenerator",
+        f"--records-config-arg={pathlib.Path.cwd() / 'db.sqlite3'}",
+        "--record-builder=tests.zeffcliTestSuite.builder.HousePriceRecordBuilder",
     ]
     options = zeff.cli.parse_commandline(args)
     upload(options)
@@ -38,7 +41,9 @@ def test_predict_generate(chdir):
     args = [
         "predict",
         "--dry-run=validate",
-        "tests.zeffcliTestSuite.builder.HousePriceRecordBuilder",
+        "--records-config-generator=tests.zeffcliTestSuite.generator.HousePriceRecordGenerator",
+        f"--records-config-arg={pathlib.Path.cwd() / 'db.sqlite3'}",
+        "--record-builder=tests.zeffcliTestSuite.builder.HousePriceRecordBuilder",
     ]
     options = zeff.cli.parse_commandline(args)
     upload(options)

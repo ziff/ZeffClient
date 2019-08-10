@@ -15,26 +15,33 @@ def subparser_pipeline(parser, config):
     """Add CLI arguments necessary for pipeline."""
 
     parser.add_argument(
-        "records-builder",
-        help="Name of python class that will build a record given a URL to record sources.",
-    )
-    parser.add_argument(
         "--records-datasetid",
         default=config["records"]["datasetid"],
         help="""Dataset id use with records.""",
     )
     parser.add_argument(
         "--records-config-generator",
-        default=config["records"]["config_generator"],
+        default=config["records"]["records_config_generator"],
         help=f"""Name of python class that will generate URLs to record
-            sources (default: {config["records"]["config_generator"]})""",
+            sources (default: {config["records"]["records_config_generator"]})""",
     )
     parser.add_argument(
-        "--records-config-url",
-        default=config["records"]["config_url"],
-        help=f"""URL or localpath as the single argument to a
-            record-config-generator
-            (default: `{config["records"]["config_url"]}`)""",
+        "--records-config-arg",
+        default=config["records"]["records_config_arg"],
+        help=f"""A single argument when records-config-generator is created
+            (default: `{config["records"]["records_config_arg"]}`)""",
+    )
+    parser.add_argument(
+        "--record-builder",
+        default=config["records"]["record_builder"],
+        help=f"""Name of python class that will build a record
+            (default: `{config["records"]["record_builder"]}`)""",
+    )
+    parser.add_argument(
+        "--record-builder-arg",
+        default=config["records"]["record_builder_arg"],
+        help=f"""A single argument when record-builder is created
+            (default: `{config["records"]["record_builder_arg"]}`)""",
     )
     subparser_server(parser, config)
     parser.add_argument(
@@ -77,15 +84,17 @@ def build_pipeline(options, zeffcloud):
 
     record_config_generator = get_mclass("records_config_generator")
     logging.debug("Found record-config-generator: %s", record_config_generator)
-    generator = record_config_generator(options.records_config_url)
+    generator = record_config_generator(options.records_config_arg)
     counter = zeff.Counter(generator)
     generator = counter
     if options.dry_run == "configuration":
         return counter, generator
 
-    records_builder = get_mclass("records-builder")
-    logging.debug("Found records-builder: %s", records_builder)
-    generator = zeff.record_builder_generator(generator, records_builder())
+    record_builder = get_mclass("record_builder")
+    logging.debug("Found record-builder: %s", record_builder)
+    generator = zeff.record_builder_generator(
+        generator, record_builder(options.record_builder_arg)
+    )
     if options.dry_run == "build":
         return counter, generator
 

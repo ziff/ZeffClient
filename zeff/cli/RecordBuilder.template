@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """Zeff record builder for ${name} records."""
-__version__ = '0.0'
+__version__ = "0.0"
 
 import logging
 from zeff.record import *
 
-LOGGER = logging.getLogger('zeffclient.record_builder')
+LOGGER = logging.getLogger("zeffclient.record.builder")
 
 
-class ${name}RecordBuilder():
-    """Zeff record builder callable object that builds ${name} records.
+class ${c_name}():
+    """Record builder for ${name} records.
 
     The callable object has a single `config` parameter that the record
     builder understands. This could be a URL, a unique number that is
     a primary key in the database, or a full configuration file.
     """
 
-    def __init__(self, *args, **argv):
+    def __init__(self, arg: str):
         pass
 
     def __call__(self, config: str) -> Record:
@@ -32,6 +32,8 @@ if __name__ == "__main__":
     from logging import basicConfig, DEBUG
     import errno
     import argparse
+    from pathlib import Path
+    from zeff.cli import load_configuration
     from zeff.record import format_record_restructuredtext
 
     if sys.version_info < (3, 7):
@@ -41,15 +43,20 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {__version__}"
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}"
     )
     parser.add_argument(
-        "config", help="URL to information to build HousePrice record"
+        "config",
+        help="Configuration to build ${name} record"
     )
     options = parser.parse_args()
+    config = load_configuration()
 
     try:
-        builder = HousePriceRecordBuilder()
+        builderarg = config["records"]["record_builder_arg"]
+        builder = ${c_name}(builderarg)
         record = builder(options.config)
         record.validate()
         format_record_restructuredtext(record, out=sys.stdout)

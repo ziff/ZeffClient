@@ -56,27 +56,29 @@ def format_record_restructuredtext(
             print(f"+-{'-'*width}-", end="", file=out)
         print("+", file=out)
 
-    def print_structured_item_table(structured_data):
+    def print_structured_item_table(record):
         columns = compute_column_widths(
-            structured_data, ["name", "data_type", "target", "value"], [16, 8, 6, 32]
+            record.structured_data,
+            ["name", "data_type", "target", "value"],
+            [16, 8, 6, 32],
         )
         print_table_header(columns)
 
-        data_items = list(structured_data)
+        data_items = list(record.structured_data)
         data_items.sort(key=structured_sort)
         for sdi in data_items:
             data = [sdi.name, sdi.data_type.name, sdi.target.name, sdi.value]
             print_table_entry(data, columns)
 
-    def print_unstructured_item_table(unstructured_data):
+    def print_unstructured_item_table(record):
         columns = compute_column_widths(
-            unstructured_data,
+            record.unstructured_data,
             ["file_type", "group_by", "data", "accessible"],
             [8, 8, 8, 16],
         )
         print_table_header(columns)
 
-        data_items = list(unstructured_data)
+        data_items = list(record.unstructured_data)
         data_items.sort(key=unstructured_sort)
         for udi in data_items:
             data = [udi.file_type, udi.group_by, udi.data, udi.accessible]
@@ -102,9 +104,9 @@ def format_record_restructuredtext(
     print()
     print("Structured Data")
     print("===============")
-    print_structured_item_table(record.structured_data)
+    print_structured_item_table(record)
 
     print(file=out)
     print("Unstructured Data", file=out)
     print("=================", file=out)
-    print_unstructured_item_table(record.unstructured_data)
+    print_unstructured_item_table(record)

@@ -3,6 +3,7 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["Record"]
 
+import logging
 import dataclasses
 
 
@@ -25,7 +26,10 @@ class Record:
             integer but gets a descrete value such as a string).
         """
         # pylint: disable=no-member
+        logger = logging.getLogger("zeffclient.record.validator")
+        logger.info("Begin validating record %s", self.name)
         for data in self.structured_data:
             data.validate()
         for data in self.unstructured_data:
             data.validate()
+        logger.info("End validating record %s", self.name)
