@@ -18,19 +18,19 @@ class Predictor:
     # pylint: disable=too-few-public-methods
     # pylint: disable=too-many-arguments
 
-    def __init__(self, upstream, server_url, org_id, user_id, datasetid):
+    def __init__(self, upstream, server_url, org_id, user_id, dataset_id):
         """TBW."""
         self.server_url = server_url
         self.org_id = org_id
         self.user_id = user_id
-        self.datasetid = datasetid
+        self.dataset_id = dataset_id
         self.upstream = upstream
 
         info = ZeffCloudResourceMap.default_info()
         self.resource_map = ZeffCloudResourceMap(
             info, root=server_url, org_id=org_id, user_id=user_id
         )
-        self.cloud_records = Records(self.datasetid, self.resource_map)
+        self.cloud_records = Records(self.dataset_id, self.resource_map)
 
     def __iter__(self):
         """Return this object."""

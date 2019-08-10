@@ -6,6 +6,8 @@ from string import Template
 from pathlib import Path, PurePath
 import importlib
 from configparser import ConfigParser, ExtendedInterpolation, NoOptionError
+from zeff.zeffcloud import ZeffCloudResourceMap
+from zeff.cloud import Dataset
 
 CONF_PATH = Path.cwd() / "zeff.conf"
 
@@ -115,8 +117,14 @@ def create_dataset(options):
         except NoOptionError:
             return
 
-        # Create the dataset when code is available
-        datasetid = f"{dataset_title}#{dataset_desc}"
+        resource_map = ZeffCloudResourceMap(
+            ZeffCloudResourceMap.default_info(),
+            root=options.configuration.get("server", "server_url"),
+            org_id=options.configuration.get("server", "org_id"),
+            user_id=options.configuration.get("server", "user_id"),
+        )
+        dataset = Dataset.create_dataset(resource_map, dataset_title, dataset_desc)
+        datasetid = dataset.dataset_id
 
         config.set("records", "datasetid", datasetid)
         with open(CONF_PATH, "wt") as fout:
