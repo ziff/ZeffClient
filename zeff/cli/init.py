@@ -140,7 +140,7 @@ class Project:
 
     def create_python_from_template(self, option, name_ext, template_name):
         """Create a source file from a template."""
-        path = self.optconf["records"][option]
+        path = self.config["records"][option]
         m_name, c_name = path.rsplit(".", 1)
         try:
             module = importlib.import_module(m_name)

@@ -3,8 +3,10 @@
 ############
 
 
-Experiment
-Sandbox
+##########
+# Documentation archives
+
+docs/source/examples/zeffclient_example_*.tar.bz2
 
 
 ##########
@@ -37,8 +39,6 @@ sdist/
 .eggs
 *.egg-info
 pip-wheel-metadata
-
-example
 
 __pycache__
 *.pyc

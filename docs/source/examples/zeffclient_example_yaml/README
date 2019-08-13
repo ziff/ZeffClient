@@ -1,0 +1,15 @@
+=======================
+ZeffClient YAML Example
+=======================
+
+This is an example of how to build records from a YAML file.
+
+The ``properties.yml`` has a single entry with a primary key of 1395678
+where all the other columns in the entry are key value pairs for building
+structured data in the record. There is also an ``images_1395678`` directory
+that has images that will be added as unstructured data to the record.
+
+If a new entry is added to the ``properties.yml`` file then an images
+directory with a matching id must be created as well. For example: add an
+entry with id 1234567 and create a directory ``images_1234567``.
+

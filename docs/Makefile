@@ -13,7 +13,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 
-docs: apidoc
+docs: example_archive apidoc
 	@$(SPHINXBUILD) -M html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
 
 
@@ -30,7 +30,13 @@ apidoc:
 	sphinx-apidoc -o $(SOURCEDIR)/ ../zeff
 
 
-.PHONY: help docs apidoc Makefile
+example_archive:
+	tar -c -C source/examples zeffclient_example_yaml | bzip2 > source/examples/zeffclient_example_yaml.tar.bz2
+	tar -c -C source/examples zeffclient_example_csv | bzip2 > source/examples/zeffclient_example_csv.tar.bz2
+	tar -c -C source/examples zeffclient_example_rdbms | bzip2 > source/examples/zeffclient_example_rdbms.tar.bz2
+
+
+.PHONY: help docs apidoc example_archive Makefile
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

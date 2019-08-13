@@ -9,17 +9,13 @@ Subpackages
    zeff.cli
    zeff.record
    zeff.recordgenerator
+   zeff.cloud
 
 Submodules
 ----------
 
 zeff.reporter module
 --------------------
-
-.. automodule:: zeff.reporter
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 
 Module contents

@@ -6,196 +6,96 @@ In this example we will create a record builder that will access an SQL
 RDMS database for the information necessary to create the record.
 
 
+QuickStart
+==========
+
+This quickstart will download the example archive, unarchive it, change
+into the new directory, and then run a script in that directory that
+will do the rest of the example. At this point you will be asked some
+questions by the ``zeff init`` command — you will need to enter your
+``org_id`` and ``user_id`` that your received from Zeff, but all
+other questions you may accept the defaults by hitting enter.
+
+Steps
+-----
+
+   1. Download: :download:`zeffclient_example_rdbms.tar.bz2 <zeffclient_example_rdbms.tar.bz2>`
+
+   2. Decompress: ``tar -xjf zeffclient_example.rdbms.tar.bz2``
+
+   3. Change directory: ``cd zeffclient_example_rdbms``
+
+   4. Run quickstart script: ``./quickstart.sh``
+
+
+How it Works
+============
+
+.. include:: project_directory.rst
+
+
 Record Config Generator
-=======================
+-----------------------
 
-A record config generator will generate a string that will be passed
-to the record builder. This string may be a URL, a unique id, or a full
-configuration file.
+The ``generator.HousePriceRecordGenerator`` in ``generator.py`` will
+yield each ``id`` that is selected from the ``properties`` table.
+For this example it only returns the string that is the ``id``, but
+it is not limited to strings and could be a URL, file, etc.
 
-For this example we will use the id that is the primary key of the
-properties table in the SQLite database:
+For this particular example there is only one row in the ``properties``
+table and the ``id`` for that row is ``1395678``.
 
-   ``1395678``
-
+To test the generator by itself use the command ``./generator.py`` or
+``python generator.py``.
 
 
 Record Builder
-==============
+--------------
 
-1. Download an decompress :download:`example_rdbms.tar.bz2 <example_rdbms.tar.bz2>`
-   into a location of your choice.
+The ``builder.HousePriceRecordBuilder`` in ``builder.py`` will take
+the configuration string given by the record config generator and
+will yield a record.
 
-2. Change to the directory that was created. This will be the ``<root>``
-   used in the URL.
+The file ``builder.py`` may be executed from the command line directly,
+and has a basic command line interface using ``argparse``. This will
+aid you in writing and debugging your record builder, because you
+may work with a single record without needing to run the entire
+ZeffClient system.
 
-3. Setup virtual environment:
+The module uses the `zeffclient.record.builder` logger to indicate
+various stages of the record building process. You should also use
+this logger while building records for error reporting, warnings,
+information, and debugging.
 
-   A. ``python -m venv .venv``
+The file ``builder.py`` has a class `HousePriceRecordBuilder` where
+all the code to build a new record for house prices is contained. This
+class will create a callable object that takes a single argument that
+has been yielded by the record generator. It has three steps: create
+a new record, add structured data to the record, and add unstructured
+data to the record.
 
-   B. ``pip install --upgrade pip``
+.. include:: zeffclient_example_rdbms/builder.py
+   :code: python
+   :number-lines: 24
+   :start-line: 23
+   :end-line: 31
 
-   C. ``pip install git+ssh://git@github.com/ziff/ZeffClient.git``
+Adding structured data is done through a select on the `properties`
+table in the database and then converting each returned column
+(except `id`) into a structured data item.
 
-      .. note::
+.. include:: zeffclient_example_rdbms/builder.py
+   :code: python
+   :number-lines: 32
+   :start-line: 31
+   :end-line: 59
 
-         This step will change when the repository becomes public
-         and ZeffClient is available in PyPi.
+Adding unstructured data is done through a select on the
+`property_images` table in the databse and then creating an
+unstructured data item.
 
-4. ``zeff template --help``
-   This will show the various options availalble when working with
-   templates.
-
-5. ``zeff template HousePrice > house_price_record_builder.py``
-   Create a new house price record builder python file from a template.
-
-   A. This file may be executed from the command line directly and has a
-      basic command line interface using ``argparse``. This will aid you
-      in writing and debugging your record building, because you may
-      work with a single record without needing the entire ZeffClient
-      system.
-
-   B. This file will have a new class `HousePriceRecordBuilder` where you
-      will write all the code to build a new record for house prices. This
-      class will create a callable object that takes a single URL parameter
-      that you will define in the URL Generator.
-
-   C. The class uses the `zeffclient.record_builder` logger (`LOGGER`) to
-      indicate various stages of the record building process. You should
-      also use this logger while building records for error reporting,
-      warnings, information, and debugging.
-
-6. ``python house_price_record_builder.py 1395678`` should show the following
-   output:
-
-   ::
-
-      INFO:zeffclient.record_builder:Begin building ``HousePrice`` record from 1395678
-      INFO:zeffclient.record_builder:End building ``HousePrice`` record from 1395678
-      ======================
-      Record(name='Example')
-      ======================
-
-7. Build an empty record:
-
-   A. In ``def __call__(...)`` change ``Record(name="example")`` to:
-
-      ::
-
-         record = Record(name=config)
-
-   B. When you execute this it should print the same as in step 6, but with
-      "Example" changed to the record number.
-
-8. Setup database access:
-
-   A. In the ``import`` section add ``import sqlite3``.
-
-   B. In ``def __init__(...)`` replace ``pass`` with:
-
-      ::
-
-         self.conn = sqlite3.connect("db.sqlite3")
-         self.conn.row_factory = sqlite3.Row
-
-   C. When you execute this it should print out the same as in step 7
-      with no errors.
-
-9. Add structured items to the record:
-
-   A. In ``def __call__(...)`` replace ``# Your record build code goes here``
-      with:
-
-      ::
-
-         self.add_structured_data(record, config)
-
-   B. Then add the following method:
-
-      ::
-
-         def add_structured_data(self, record, id):
-             # Select all the properties from the database for the record
-             sql = f"SELECT * FROM properties WHERE id={id}"
-             cursor = self.conn.cursor()
-             row = cursor.execute(sql).fetchone()
-
-             # Process each column in the record except for `id`,
-             # create the structured data, and add it to the record object.
-             for key in row.keys():
-                 if key == "id":
-                     continue
-                 value = row[key]
-
-                 # Is the column a continuous or category datatype
-                 if isinstance(value, (int, float)):
-                     dtype = StructuredData.DataType.CONTINUOUS
-                 else:
-                     dtype = StructuredData.DataType.CATEGORY
-
-                 # Create the structured data and add it to the record
-                 sd = StructuredData(name=key, value=value, data_type=dtype)
-                 sd.record = record
-
-             # Clean up
-             cursor.close()
-
-   C. When you execute this you should see everything from step 8 with
-      additional structured data table that will look similar to, but
-      with more table entries:
-
-      ::
-
-          Structured Data
-          ===============
-          +-----------------+------------+--------+-------+
-          | name            | data_type  | target | value |
-          +=================+============+========+=======+
-          | garage_capacity | CONTINUOUS | NO     | 6     |
-          +-----------------+------------+--------+-------+
-
-10. Add unstructured items to the record:
-
-    A. In ``def __call__(...)`` add the following after the line you
-       added in step 8.
-
-       ::
-
-          self.add_unstructured_data(record, config)
-
-    B. Then add the following method:
-
-       ::
-
-          def add_unstructured_data(self, record, id):
-              # Select all the property imaages for the record
-              sql = f"SELECT * FROM property_images WHERE property_id={id}"
-              cursor = self.conn.cursor()
-
-              # Process each row returned in the selection, create an
-              # unstructured data, and add that to the record object.
-              for row in cursor.execute(sql).fetchall():
-                  url = row["url"]
-                  file_type = UnstructuredData.FileType.IMAGE
-                  group_by = row["image_type"]
-                  ud = UnstructuredData(url, media_type, group_by=group_by)
-                  ud.record = record
-
-              # Clean up
-              cursor.close()
-
-    C. When you execute this you should see everything from step 8 with
-       additional structured data table that will look similar to, but
-       with more table entries:
-
-       ::
-
-           Unstructured Data
-           =================
-           +------------+------------+----------------------------------+
-           | media_type | group_by   | data                             |
-           +============+============+==================================+
-           | image/jpg  | home_photo | https://example.com/photo_38.jpg |
-           +------------+------------+----------------------------------+
-
-
+.. include:: zeffclient_example_rdbms/builder.py
+   :code: python
+   :number-lines: 60
+   :start-line: 59
+   :end-line: 79

@@ -7,7 +7,7 @@ Submodules
 zeff.cloud.datasets module
 --------------------------
 
-.. automodule:: zeff.cloud.datasets
+.. automodule:: zeff.cloud.dataset
    :members:
    :undoc-members:
    :show-inheritance:

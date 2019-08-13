@@ -39,7 +39,6 @@ examples:			## Setup environement for doing examples
 validate: lint test	## Validate project for CI, CD, and publish
 
 
-
 clean:				## Clean generated files
 	@rm -rf build
 	@rm -rf dist
