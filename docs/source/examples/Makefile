@@ -6,7 +6,7 @@ archive: zeffclient_example_yaml.tar.bz2 \
 		 zeffclient_example_rdbms.tar.bz2
 
 clean:
-	@rm zeffclient_example_*.tar.bz2
+	@rm -f zeffclient_example_*.tar.bz2
 
 
 %.tar.bz2: % %/*
