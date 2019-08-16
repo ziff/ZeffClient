@@ -1,5 +1,11 @@
 #!/bin/sh
 
+python3 -c 'import sys; sys.exit(0) if sys.version_info >= (3, 7) else sys.exit(1)'
+if [ $? -eq 1 ]; then
+	echo Python 3.7 or greater is required to use ZeffClient. >&2
+	exit 1
+fi
+
 echo
 echo ==========================================
 echo Setup virtual environment and install zeff

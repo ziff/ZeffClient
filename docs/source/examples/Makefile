@@ -10,4 +10,6 @@ clean:
 
 
 %.tar.bz2: % %/*
-	tar -c $< | bzip2 > $@
+	@echo Build $@
+	@find $< -name .venv -exec rm -rf {} \;
+	@tar -c $< | bzip2 > $@
