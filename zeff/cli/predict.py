@@ -14,7 +14,9 @@ def predict_subparser(subparsers, config):
     :param subparsers: The subparser to add the predict sub-command.
     """
 
-    parser = subparsers.add_parser("predict")
+    parser = subparsers.add_parser(
+        "predict", help="""Upload record to infer a prediction."""
+    )
     parser.add_argument(
         "--model-version",
         dest="model-version",

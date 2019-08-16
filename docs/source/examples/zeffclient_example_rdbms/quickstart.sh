@@ -23,6 +23,9 @@ echo All other questions accept default by
 echo hitting enter
 echo ==========================================
 zeff init
+if [ $? -ne 0 ]; then
+	exit $?
+fi
 
 echo ==========================================
 echo Start the upload of some records

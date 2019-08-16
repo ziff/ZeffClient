@@ -47,12 +47,17 @@ Options
 Sub-commands
 ============
 
-    ``run``
-        Build, validate, and upload records to Zeff Cloud from generated
-        strings. See ``zeff run --help`` for arguments.
+    ``init``
+        Setup a new project in the current directory.
 
-    ``template``
-        Create a record builder template.
+    ``upload``
+        Build, validate, and upload training records.
+
+    ``train``
+        Control training sessions.
+
+    ``predict``
+        Upload record to infer a prediction.
 
 
 Configuration
@@ -87,7 +92,6 @@ import argparse
 from zeff import __version__
 
 from .init import *
-from .template import *
 from .upload import *
 from .train import *
 from .predict import *
@@ -178,7 +182,6 @@ def parse_commandline(args=None, config=None):
     upload_subparser(subparsers, config)
     train_subparser(subparsers, config)
     predict_subparser(subparsers, config)
-    template_subparser(subparsers)
 
     options = parser.parse_args(args=args)
     options.configuration = config

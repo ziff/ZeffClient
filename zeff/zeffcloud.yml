@@ -69,7 +69,7 @@ links:
         methods: ["POST"]
     -
         tag: tag:zeff.com,2019-07:records
-        anchor: /v2.5/datasets/{dataset_id}/records/{recordid}
+        anchor: /v2.5/datasets/{dataset_id}/records/{record_id}
         methods: ["GET", "PUT", "DELETE"]
 
 

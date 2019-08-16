@@ -2,12 +2,14 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["init_subparser"]
 
+import sys
+import errno
 from string import Template
 from pathlib import Path, PurePath
 import importlib
 from configparser import ConfigParser, ExtendedInterpolation, NoOptionError
 from zeff.zeffcloud import ZeffCloudResourceMap
-from zeff.cloud import Dataset
+from zeff.cloud import Dataset, ZeffCloudException
 
 CONF_PATH = Path.cwd() / "zeff.conf"
 
@@ -20,12 +22,21 @@ def init_subparser(subparsers):
     parser = subparsers.add_parser(
         "init", help="""Setup a new project in the current directory."""
     )
+    parser.add_argument(
+        "--overwrite-existing",
+        action="store_true",
+        help="""If source files exist overwrite with template.""",
+    )
     parser.set_defaults(func=init_project)
 
 
 def init_project(options):
     """Initialize a new project in the current directory."""
-    Project(options)()
+    try:
+        Project(options)()
+    except ZeffCloudException as err:
+        print(err, file=sys.stderr)
+        sys.exit(errno.EIO)
 
 
 class Project:
@@ -160,5 +171,8 @@ class Project:
             template = Template(template_file.read())
 
         output_path = Path.cwd() / f"{m_name}.py"
-        with open(output_path, "wt") as fout:
-            fout.write(template.safe_substitute(name=name, c_name=c_name))
+        if output_path.exists() and not self.options.overwrite_existing:
+            print(f"Skipping creation of {m_name}.py as it already exists.")
+        else:
+            with open(output_path, "wt") as fout:
+                fout.write(template.safe_substitute(name=name, c_name=c_name))

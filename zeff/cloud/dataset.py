@@ -3,9 +3,10 @@ __docformat__ = "reStructuredText en"
 
 import logging
 import json
-import re
 from typing import Iterator
+from .exception import ZeffCloudException
 from .resource import Resource
+from .encoder import RecordEncoder
 
 
 LOGGER = logging.getLogger("zeffclient.record.uploader")
@@ -28,12 +29,21 @@ class Dataset(Resource):
 
         :return: A Dataset which maps to the instance in Zeff Cloud.
 
-        :raises [ErrorType]:
+        :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
         resource = Resource(resource_map)
         tag = "tag:zeff.com,2019-07:datasets/add"
         body = {"title": title, "description": description}
         resp = resource.request(tag, method="POST", data=json.dumps(body))
+        if resp.status_code not in [201]:
+            LOGGER.error(
+                "Error creating dataset %s: (%d) %s; %s",
+                title,
+                resp.status_code,
+                resp.reason,
+                resp.text,
+            )
+            raise ZeffCloudException(resp, cls, title, "create")
         data = resp.json()["data"]
         assert data["title"] == title
         dataset_id = data["datasetId"]
@@ -49,18 +59,71 @@ class Dataset(Resource):
         :param dataset_id: This maps to the datasetId for a dataset record
             in the Zeff Cloud API.
 
-        :raises [ErrorType]:
+        :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
-
-        def snake_case(name):
-            name = re.sub(r"([A-Z])", r"_\1", name).lstrip("_")
-            name = name.lower()
-            return name
-
         super().__init__(resource_map)
         self.dataset_id = None
         tag = "tag:zeff.com,2019-07:datasets"
         resp = self.request(tag, dataset_id=dataset_id)
+        if resp.status_code not in [200]:
+            LOGGER.error(
+                "Error loading dataset %s: (%d) %s; %s",
+                dataset_id,
+                resp.status_code,
+                resp.reason,
+                resp.text,
+            )
+            raise ZeffCloudException(resp, type(self), dataset_id, "load")
         data = resp.json()["data"]
-        self.__dict__.update({snake_case(k): v for k, v in data.items()})
+        self.__dict__.update({Resource.snake_case(k): v for k, v in data.items()})
         assert self.dataset_id == dataset_id
+
+    def records(self):
+        """Return iterator over all records in the dataset.
+
+        :raises ZeffCloudException: Exception in communication with Zeff Cloud.
+        """
+        tag = "tag:zeff.com,2019-07:records/list"
+        resp = self.request(tag, dataset_id=self.dataset_id)
+        if resp.status_code not in [200]:
+            LOGGER.error(
+                "Error listing dataset records %s: (%d) %s; %s",
+                self.dataset_id,
+                resp.status_code,
+                resp.reason,
+                resp.text,
+            )
+            raise ZeffCloudException(resp, type(self), self.dataset_id, "list records")
+        return iter(resp.json().get("data", []))
+
+    def add_record(self, record):
+        """Add a record to this dataset.
+
+        :param record: The record data structure to be added.
+
+        :raises ZeffCloudException: Exception in communication with Zeff Cloud.
+        """
+        from .record import Record
+
+        LOGGER.info("Begin upload record %s", record.name)
+        tag = "tag:zeff.com,2019-07:records/add"
+        batch = {"batch": [record]}
+        val = json.dumps(batch, cls=RecordEncoder)
+        resp = self.request(tag, method="POST", data=val, dataset_id=self.dataset_id)
+        if resp.status_code not in [200, 201]:
+            LOGGER.error(
+                "Error upload record %s: (%d) %s; %s",
+                record.name,
+                resp.status_code,
+                resp.reason,
+                resp.text,
+            )
+            raise ZeffCloudException(resp, type(self), record.name, "add record")
+        data = resp.json()["data"][0]
+        LOGGER.info(
+            """End upload record %s: recordId = %s location = %s""",
+            record.name,
+            data["recordId"],
+            data["location"],
+        )
+        return Record(self, data["recordId"])

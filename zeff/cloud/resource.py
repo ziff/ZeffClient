@@ -2,6 +2,7 @@
 __docformat__ = "reStructuredText en"
 
 import logging
+import re
 import requests
 
 LOGGER = logging.getLogger("zeffclient.record.uploader")
@@ -11,6 +12,13 @@ class Resource:
     """Base class for accessing Zeff Cloud REST resources."""
 
     # pylint: disable=too-few-public-methods
+
+    @classmethod
+    def snake_case(cls, name):
+        """Convert camel case `name` to snake case."""
+        name = re.sub(r"([A-Z])", r"_\1", name).lstrip("_")
+        name = name.lower()
+        return name
 
     def __init__(self, resource_map):
         """Link object to REST resource.

@@ -4,7 +4,8 @@ __all__ = ["Uploader"]
 
 import logging
 from .zeffcloud import ZeffCloudResourceMap
-from .cloud.records import Records
+from .cloud.exception import ZeffCloudException
+from .cloud.dataset import Dataset
 
 LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
@@ -30,7 +31,7 @@ class Uploader:
         self.resource_map = ZeffCloudResourceMap(
             info, root=server_url, org_id=org_id, user_id=user_id
         )
-        self.cloud_records = Records(self.dataset_id, self.resource_map)
+        self.dataset = Dataset(self.dataset_id, self.resource_map)
 
     def __iter__(self):
         """Return this object."""
@@ -38,5 +39,9 @@ class Uploader:
 
     def __next__(self):
         """Return the next item from the container."""
-        record = next(self.upstream)
-        return self.cloud_records.add(record)
+        while True:
+            try:
+                record = next(self.upstream)
+                return self.dataset.add_record(record)
+            except ZeffCloudException as err:
+                LOGGER_UPLOADER.exception(err)

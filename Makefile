@@ -86,9 +86,8 @@ format:				## Format source code to standard
 	find tests -name '*.py' -exec black -q {} \;
 
 
-setupdev:			## Create a virtual environemnt for development
+updatedev:			## Update / init all packages for development environment
 	@echo Setup virtual environment
-	python -m venv .venv
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e .
 	@${PIP} ${PIPFLAGS} install --upgrade -e ".[dev]"
