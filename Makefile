@@ -18,13 +18,6 @@ docs:				## Create documentation
 	@echo Update required tools
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
-	@echo Update UML diagrams
-	@plantuml docs/source/**/*.uml
-	@echo Update man pages
-	@mkdir -p docs/source/man/man1
-	@python -c 'import zeff; print(zeff.__doc__)' | \
-		sed '1,3d' | \
-		rst2man.py > docs/source/man/man1/zeff.1
 	@echo Create documentation
 	@$(MAKE) -C docs docs
 
