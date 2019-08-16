@@ -13,7 +13,7 @@ echo ==========================================
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install git+ssh://git@github.com/ziff/ZeffClient.git@0.0.1
+pip install git+ssh://git@github.com/ziff/ZeffClient.git@0.0.2
 
 echo
 echo ==========================================
