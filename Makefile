@@ -49,6 +49,7 @@ clean:				## Clean generated files
 	@rm -rf *.egg-info
 	@rm -rf pip-wheel-metadata
 	@find zeff -name '__pycache__' -exec rm -rf {} \; -prune
+	@$(MAKE) -C docs clean
 
 
 clean_cache:		## Clean caches
@@ -91,6 +92,16 @@ format:				## Format source code to standard
 	find zeff -name '*.py' -exec black -q {} \;
 	find tests -name '*.py' -exec black -q {} \;
 
+
+setupdev:			## Create a virtual environemnt for development
+	@echo Setup virtual environment
+	python -m venv .venv
+	@${PIP} ${PIPFLAGS} install --upgrade pip
+	@${PIP} ${PIPFLAGS} install --upgrade -e .
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[dev]"
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[tests]"
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[lint]"
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
