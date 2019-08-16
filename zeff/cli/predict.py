@@ -2,6 +2,8 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["predict_subparser"]
 
+import sys
+from pathlib import Path
 import logging
 import zeff
 import zeff.record
@@ -29,6 +31,7 @@ def predict_subparser(subparsers, config):
 
 def predict(options):
     """Generate a set of records from options."""
+    sys.path.append(str(Path.cwd()))
     _, records = build_pipeline(options, zeff.Predictor)
     for record in records:
         logging.debug(record)

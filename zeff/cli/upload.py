@@ -2,6 +2,8 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["upload_subparser"]
 
+import sys
+from pathlib import Path
 import logging
 import zeff
 import zeff.record
@@ -29,6 +31,7 @@ def upload_subparser(subparsers, config):
 
 def upload(options):
     """Generate a set of records from options."""
+    sys.path.append(str(Path.cwd()))
     counter, records = build_pipeline(options, zeff.Uploader)
     for record in records:
         logging.debug(record)
