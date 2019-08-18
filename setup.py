@@ -12,4 +12,6 @@ import os
 
 from setuptools import setup, find_packages
 
-setup(use_scm_version=True)
+# PR REQUIRES THAT THIS LINE BE USED AND VERSION REMOVED FROM setup.cfg
+# setup(use_scm_version=True)
+setup()

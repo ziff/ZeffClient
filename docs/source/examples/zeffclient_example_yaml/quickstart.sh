@@ -27,6 +27,9 @@ ${PYTHON} -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install git+ssh://git@github.com/ziff/ZeffClient.git@0.0.2
+if [ $? -ne 0 ]; then
+	exit $?
+fi
 
 echo
 echo ==========================================

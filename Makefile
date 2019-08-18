@@ -11,7 +11,10 @@ install:			## Install system
 
 
 publish:			## Publish the library to the central PyPi repository
-	echo python setup.py sdist upload
+	@${PIP} ${PIPFLAGS} install --upgrade pip setuptools wheel twine
+	python setup.py sdist bdist_wheel
+	python -m twine check dist/*
+	python -m twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
 
 
 docs:				## Create documentation

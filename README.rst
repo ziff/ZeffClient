@@ -1,4 +1,3 @@
-**********
 ZeffClient
 **********
 
@@ -100,7 +99,7 @@ must be done through your system's package manager (e.g. MacPorts, Brew,
 apt-get, etc).
 
    - plantuml
-   2. graphviz
+   - graphviz
 
 
 Change Log
