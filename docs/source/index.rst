@@ -12,6 +12,9 @@ Zeff Cloud API online systems easier.
 
    - :doc:`zeff.cli` simplifies experimentation with Zeff Cloud API.
 
+   - :doc:`zeff.cloud` locally models Zeff Cloud objects, and provides
+     methods to create, read, update, and delete these objects.
+
 
 .. toctree::
    :maxdepth: 1

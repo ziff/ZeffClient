@@ -28,82 +28,36 @@ ZeffClient
    :target: https://pepy.tech/project/ZeffClient
 
 
-Announcements
-=============
-
-
 
 Overview
 ========
 
-ZeffClient is a collection of libraries and tools to make working with
-Zeff Cloud API online systems easier.
-
-   - ``zeff`` is a Python package that simplifies the creation,
-     modification, and uploading of records to Zeff Cloud API.
-
-   - ``zeff/record`` is a package for building records that may
-     be validated or uploaded to Zeff Cloud API.
-
-   - ``zeff/cli`` is a CLI tool that simplifies experimentation
-     with Zeff Cloud API.
+ZeffClient is a command line tool and library to simplify working with
+Zeff Cloud API.
 
 
-Requirements
-------------
 
-- Python 3.7
+Features
+========
 
+   - User defined record creation.
 
-Installing
-----------
+   - Optimized validation of records.
 
-TBW
+   - Optimized upload of records.
 
-Library
--------
-
-TBW
-
-Commandline
------------
-
-TBW
+   - Model training controls.
 
 
-Build
+Links
 =====
 
-Common build steps are defined in ``Makefile`` and may be listed by
-executing ``make help`` on the command line.
+   - `Documentation <https://ziff.com/docs/>`_
 
-Most tools necessary for make commands will be installed via ``pip`` into
-the active python environment.
+   - `Bugs / Requests <https://github.com/ziff/ZeffClient/issues>`_
 
+   - `Changelog <https://ziff.com/docs/changelog.html>`_
 
-virtualenv
-----------
-
-It is recommended that a virtualenv be created and activated before
-executing any make commands.
-
-   1. ``python3 -m venv .venv``
-   2. ``source .venv/bin/activate``
-
-
-make docs
----------
-
-Building documentation requires installation of some tools. This installation
-must be done through your system's package manager (e.g. MacPorts, Brew,
-apt-get, etc).
-
-   - plantuml
-   - graphviz
-
-
-Change Log
-==========
 
 
 Contributing
@@ -119,6 +73,9 @@ Before creating any commit:
    1. ``make validate``
 
 
+
+Copyright & License
+===================
 
 :copyright: |copy| 2019 Ziff, Inc.
 
