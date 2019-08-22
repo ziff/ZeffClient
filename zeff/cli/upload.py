@@ -8,6 +8,7 @@ import logging
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
+from .train import Trainer
 
 
 def upload_subparser(subparsers, config):
@@ -37,5 +38,5 @@ def upload(options):
         logging.debug(record)
     if counter.count == 0 and not options.no_train:
         logging.debug("All records uploaded, start training.")
-        trainer = zeff.Trainer()
+        trainer = Trainer(options)
         trainer.start()

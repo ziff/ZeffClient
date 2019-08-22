@@ -5,7 +5,6 @@ import logging
 import enum
 import json
 import datetime
-import collections
 from typing import Iterator
 from .exception import ZeffCloudException
 from .resource import Resource
@@ -165,8 +164,8 @@ class Dataset(Resource):
 class TrainingSessionInfo:
     """Information about the current training session."""
 
-    class Status(enum.Enum):
-        """Training status of training session."""
+    class State(enum.Enum):
+        """Training state of training session."""
 
         unknown = "UNKNOWN"
         queued = "QUEUED"
@@ -175,9 +174,11 @@ class TrainingSessionInfo:
         complete = "COMPLETE"
 
         def __str__(self):
+            """Return a user appropriate name of this state."""
             return self.name
 
         def __repr__(self):
+            """Return a representation of this state."""
             return "<%s.%s>" % (self.__class__.__name__, self.name)
 
     def __init__(self, status_json):
@@ -189,39 +190,45 @@ class TrainingSessionInfo:
         self.__data = status_json
 
     @property
-    def status(self) -> "TrainingSessionInfo.Status":
-        r = self.__data["status"]
-        return TrainingSessionInfo.Status(r if r is not None else "unknown")
+    def status(self) -> "TrainingSessionInfo.State":
+        """Return state of current training session."""
+        value = self.__data["status"]
+        return TrainingSessionInfo.State(value if value is not None else "unknown")
 
     @property
     def progress(self) -> float:
-        r = self.__data["percentComplete"]
-        return float(r) if r is not None else 0.0
+        """Return progress, [0.0, 1.0], of current training session."""
+        value = self.__data["percentComplete"]
+        return float(value) if value is not None else 0.0
 
     @property
     def model_version(self) -> str:
-        r = self.__data["modelVersion"]
-        return r if r is not None else "unknown"
+        """Return model version of the current training session."""
+        value = self.__data["modelVersion"]
+        return str(value) if value is not None else "unknown"
 
     @property
     def model_location(self) -> str:
-        r = self.__data["modelLocation"]
-        return r if r is not None else "unknown"
+        """Return the URL to the model."""
+        value = self.__data["modelLocation"]
+        return str(value) if value is not None else "unknown"
 
     @property
     def created_timestamp(self) -> datetime.datetime:
-        r = self.__data["createdAt"]
-        if r is not None:
-            d = datetime.datetime.fromisoformat(r)
-            return d
+        """Return the timestamp when this training session was created."""
+        value = self.__data["createdAt"]
+        if value is not None:
+            ret = datetime.datetime.fromisoformat(value)
         else:
-            return None
+            ret = datetime.datetime.min
+        return ret
 
     @property
     def updated_timestamp(self) -> datetime.datetime:
-        r = self.__data["updatedAt"]
-        if r is not None:
-            d = datetime.datetime.fromisoformat(r)
-            return d
+        """Return timestamp when current session status was last updated."""
+        value = self.__data["updatedAt"]
+        if value is not None:
+            ret = datetime.datetime.fromisoformat(value)
         else:
-            return self.created_timestamp
+            ret = self.created_timestamp
+        return ret

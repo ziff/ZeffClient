@@ -4,12 +4,9 @@ __all__ = ["train_subparser"]
 
 import sys
 import errno
-import zeff
-from .server import subparser_server
-import zeff.record
 from zeff.zeffcloud import ZeffCloudResourceMap
-from zeff.cloud.exception import ZeffCloudException
 from zeff.cloud.dataset import Dataset, TrainingSessionInfo
+from .server import subparser_server
 
 
 def train_subparser(subparsers, config):
@@ -85,31 +82,36 @@ class Trainer:
         from tqdm import tqdm
         import time
 
+        def tstamp():
+            return f"{tstate.updated_timestamp.strftime('%c')}"
+
         if self.options.continuous:
-            s = self.dataset.training_status
+
+            def desc_str():
+                return f"{tstate.status} ({tstamp()})"
+
+            tstate = self.dataset.training_status
             pbar = tqdm(
-                desc=str(s.status),
+                desc=desc_str(),
                 total=100,
                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
             )
-            while s.status is not TrainingSessionInfo.Status.complete:
-                pbar.set_description(str(s.status))
-                pbar.update(s.progress)
+            while tstate.status is not TrainingSessionInfo.State.complete:
+                pbar.set_description(desc_str())
+                pbar.update(tstate.progress)
                 time.sleep(1.0)
-                s = self.dataset.training_status
+                tstate = self.dataset.training_status
             pbar.close()
         else:
-            s = self.dataset.training_status
-            if s.status is TrainingSessionInfo.Status.queued:
-                print(f"Queued as of {s.updated_timestamp.strftime('%c')}")
-            elif s.status is TrainingSessionInfo.Status.started:
-                print(f"Started on {s.updated_timestamp.strftime('%c')}")
-            elif s.status is TrainingSessionInfo.Status.progress:
-                print(
-                    f"Progress {s.progress:.2%} as of {s.updated_timestamp.strftime('%c')}"
-                )
-            elif s.status is TrainingSessionInfo.Status.complete:
-                print(f"Completed on {s.updated_timestamp.strftime('%c')}")
+            tstate = self.dataset.training_status
+            if tstate.status is TrainingSessionInfo.State.queued:
+                print(f"Queued as of {tstamp()}")
+            elif tstate.status is TrainingSessionInfo.State.started:
+                print(f"Started on {tstamp()}")
+            elif tstate.status is TrainingSessionInfo.State.progress:
+                print(f"Progress {tstate.progress:.2%} as of {tstamp()}")
+            elif tstate.status is TrainingSessionInfo.State.complete:
+                print(f"Completed on {tstamp()}")
 
     def start(self):
         """Start or restart the current training session."""

@@ -6,6 +6,7 @@ import io
 import types
 import pathlib
 from . import chdir
+import pytest
 
 import zeff.cli
 from zeff.cli.upload import upload
@@ -28,8 +29,8 @@ def test_upload_generate(chdir):
     # Setup mock server to recieve upload
 
 
+@pytest.mark.skip(reason="Need mock Zeff Cloud to test")
 def test_train_generate():
-    # TODO: this needs to watch a mock ZeffCloud object
     dirpath = os.path.dirname(__file__)
     options = types.SimpleNamespace(action="start")
     strio = io.StringIO()
