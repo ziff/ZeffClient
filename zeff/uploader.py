@@ -11,16 +11,24 @@ LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
 
 class Uploader:
-    """Generator that will yield successfully uploaded records.
-
-    :param upstream: Generator of records to be uploaded.
-    """
+    """Generator that will yield successfully uploaded records."""
 
     # pylint: disable=too-few-public-methods
     # pylint: disable=too-many-arguments
 
     def __init__(self, upstream, server_url, org_id, user_id, dataset_id):
-        """TBW."""
+        """Create new uploader.
+
+        :param upstream: Generator of records to be uploaded.
+
+        :param server_url: Root URL to the Zeff Cloud API server.
+
+        :param org_id: The organization id for authorization access.
+
+        :param user_id: The user id for authorization access.
+
+        :param dataset_id: The dataset id that all uploads will be sent to.
+        """
         self.server_url = server_url
         self.org_id = org_id
         self.user_id = user_id

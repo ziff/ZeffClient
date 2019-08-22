@@ -2,7 +2,10 @@
 __docformat__ = "reStructuredText en"
 
 import logging
+import enum
 import json
+import datetime
+import collections
 from typing import Iterator
 from .exception import ZeffCloudException
 from .resource import Resource
@@ -127,3 +130,98 @@ class Dataset(Resource):
             data["location"],
         )
         return Record(self, data["recordId"])
+
+    @property
+    def training_status(self):
+        """Return current training status metrics object."""
+        tag = "tag:zeff.com,2019-07:datasets/train"
+        resp = self.request(tag, method="GET", dataset_id=self.dataset_id)
+        if resp.status_code not in [200]:
+            raise ZeffCloudException(
+                resp, type(self), self.dataset_id, "training status"
+            )
+        return TrainingSessionInfo(resp.json()["data"])
+
+    def start_training(self):
+        """Start or restart the current training session."""
+        tag = "tag:zeff.com,2019-07:datasets/train"
+        resp = self.request(tag, method="PUT", dataset_id=self.dataset_id)
+        if resp.status_code not in [202]:
+            raise ZeffCloudException(
+                resp, type(self), self.dataset_id, "training start"
+            )
+
+    def stop_training(self):
+        """Stop the current training session."""
+        # pylint: disable=no-self-use
+        logging.debug("Stop de training")
+
+    def kill_training(self):
+        """Kill the current training session and mark invalid."""
+        # pylint: disable=no-self-use
+        logging.debug("Kill the training session")
+
+
+class TrainingSessionInfo:
+    """Information about the current training session."""
+
+    class Status(enum.Enum):
+        """Training status of training session."""
+
+        unknown = "UNKNOWN"
+        queued = "QUEUED"
+        started = "STARTED"
+        progress = "PCT_COMPLETE"
+        complete = "COMPLETE"
+
+        def __str__(self):
+            return self.name
+
+        def __repr__(self):
+            return "<%s.%s>" % (self.__class__.__name__, self.name)
+
+    def __init__(self, status_json):
+        """Create a new training information.
+
+        :param status_json: The status JSON returned from a train
+            status request.
+        """
+        self.__data = status_json
+
+    @property
+    def status(self) -> "TrainingSessionInfo.Status":
+        r = self.__data["status"]
+        return TrainingSessionInfo.Status(r if r is not None else "unknown")
+
+    @property
+    def progress(self) -> float:
+        r = self.__data["percentComplete"]
+        return float(r) if r is not None else 0.0
+
+    @property
+    def model_version(self) -> str:
+        r = self.__data["modelVersion"]
+        return r if r is not None else "unknown"
+
+    @property
+    def model_location(self) -> str:
+        r = self.__data["modelLocation"]
+        return r if r is not None else "unknown"
+
+    @property
+    def created_timestamp(self) -> datetime.datetime:
+        r = self.__data["createdAt"]
+        if r is not None:
+            d = datetime.datetime.fromisoformat(r)
+            return d
+        else:
+            return None
+
+    @property
+    def updated_timestamp(self) -> datetime.datetime:
+        r = self.__data["updatedAt"]
+        if r is not None:
+            d = datetime.datetime.fromisoformat(r)
+            return d
+        else:
+            return self.created_timestamp

@@ -44,5 +44,4 @@ from .pipeline_observation import *
 # pylint: disable=duplicate-code
 
 from .uploader import Uploader
-from .trainer import Trainer
 from .predictor import Predictor

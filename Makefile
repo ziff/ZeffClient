@@ -87,13 +87,12 @@ format:				## Format source code to standard
 
 
 updatedev:			## Update / init all packages for development environment
-	@echo Setup virtual environment
-	@${PIP} ${PIPFLAGS} install --upgrade pip
-	@${PIP} ${PIPFLAGS} install --upgrade -e .
-	@${PIP} ${PIPFLAGS} install --upgrade -e ".[dev]"
-	@${PIP} ${PIPFLAGS} install --upgrade -e ".[tests]"
-	@${PIP} ${PIPFLAGS} install --upgrade -e ".[lint]"
-	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
+	${PIP} ${PIPFLAGS} install --upgrade pip
+	${PIP} ${PIPFLAGS} install --upgrade -e .
+	${PIP} ${PIPFLAGS} install --upgrade -e ".[dev]"
+	${PIP} ${PIPFLAGS} install --upgrade -e ".[tests]"
+	${PIP} ${PIPFLAGS} install --upgrade -e ".[lint]"
+	${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \

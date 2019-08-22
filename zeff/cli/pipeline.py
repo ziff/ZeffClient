@@ -17,7 +17,7 @@ def subparser_pipeline(parser, config):
     parser.add_argument(
         "--records-datasetid",
         default=config["records"]["datasetid"],
-        help="""Dataset id use with records.""",
+        help="""Dataset id to use with records.""",
     )
     parser.add_argument(
         "--records-config-generator",
