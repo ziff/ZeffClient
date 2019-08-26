@@ -47,9 +47,6 @@ def train_subparser(subparsers, config):
     action_stop = actions.add_parser("stop", help="Stop the current training session.")
     action_stop.set_defaults(action=Trainer.stop)
 
-    action_kill = actions.add_parser("kill", help="Kill the current training session.")
-    action_kill.set_defaults(action=Trainer.kill)
-
 
 def train(options):
     """Generate a set of records from options."""
@@ -120,7 +117,3 @@ class Trainer:
     def stop(self):
         """Stop the current training session."""
         self.dataset.stop_training()
-
-    def kill(self):
-        """Kill the current training session and mark invalid."""
-        self.dataset.kill_training()

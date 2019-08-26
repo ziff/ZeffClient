@@ -34,7 +34,7 @@ links:
     -
         tag: tag:zeff.com,2019-07:datasets/train
         anchor: /v2.5/datasets/{dataset_id}/train
-        methods: ["GET", "PUT"]
+        methods: ["GET", "PUT", "DELETE"]
 
     ###
     ### Models

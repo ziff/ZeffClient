@@ -152,13 +152,10 @@ class Dataset(Resource):
 
     def stop_training(self):
         """Stop the current training session."""
-        # pylint: disable=no-self-use
-        logging.debug("Stop de training")
-
-    def kill_training(self):
-        """Kill the current training session and mark invalid."""
-        # pylint: disable=no-self-use
-        logging.debug("Kill the training session")
+        tag = "tag:zeff.com,2019-07:datasets/train"
+        resp = self.request(tag, method="DELETE", dataset_id=self.dataset_id)
+        if resp.status_code not in [200]:
+            raise ZeffCloudException(resp, type(self), self.dataset_id, "training stop")
 
 
 class TrainingSessionInfo:
