@@ -92,6 +92,7 @@ import argparse
 from zeff import __version__
 
 from .init import *
+from .models import *
 from .upload import *
 from .train import *
 from .predict import *
@@ -179,6 +180,7 @@ def parse_commandline(args=None, config=None):
 
     subparsers = parser.add_subparsers(help="sub-command help")
     init_subparser(subparsers)
+    models_subparser(subparsers, config)
     upload_subparser(subparsers, config)
     train_subparser(subparsers, config)
     predict_subparser(subparsers, config)

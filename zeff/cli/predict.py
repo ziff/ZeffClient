@@ -21,7 +21,7 @@ def predict_subparser(subparsers, config):
     )
     parser.add_argument(
         "--model-version",
-        dest="model-version",
+        type=int,
         help="""Choose a model version to make prediction against. The
             default is the latest valid version.""",
     )
@@ -32,7 +32,7 @@ def predict_subparser(subparsers, config):
 def predict(options):
     """Generate a set of records from options."""
     sys.path.append(str(Path.cwd()))
-    _, records = build_pipeline(options, zeff.Predictor)
+    _, records = build_pipeline(options, zeff.Predictor, options.model_version)
     for record in records:
         logging.debug(record)
     # Get the results and output them

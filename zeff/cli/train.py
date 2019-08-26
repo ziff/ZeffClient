@@ -5,7 +5,8 @@ __all__ = ["train_subparser"]
 import sys
 import errno
 from zeff.zeffcloud import ZeffCloudResourceMap
-from zeff.cloud.dataset import Dataset, TrainingSessionInfo
+from zeff.cloud.dataset import Dataset
+from zeff.cloud.training import TrainingStatus
 from .server import subparser_server
 
 
@@ -49,7 +50,7 @@ def train_subparser(subparsers, config):
 
 
 def train(options):
-    """Generate a set of records from options."""
+    """Entry point for train subcommand."""
     if not options.records_datasetid:
         print("Unknown dataset id to access for training.", file=sys.stderr)
         sys.exit(errno.EINVAL)
@@ -93,7 +94,7 @@ class Trainer:
                 total=100,
                 bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
             )
-            while tstate.status is not TrainingSessionInfo.State.complete:
+            while tstate.status is not TrainingStatus.complete:
                 pbar.set_description(desc_str())
                 pbar.update(tstate.progress)
                 time.sleep(1.0)
@@ -101,13 +102,13 @@ class Trainer:
             pbar.close()
         else:
             tstate = self.dataset.training_status
-            if tstate.status is TrainingSessionInfo.State.queued:
+            if tstate.status is TrainingStatus.queued:
                 print(f"Queued as of {tstamp()}")
-            elif tstate.status is TrainingSessionInfo.State.started:
+            elif tstate.status is TrainingStatus.started:
                 print(f"Started on {tstamp()}")
-            elif tstate.status is TrainingSessionInfo.State.progress:
+            elif tstate.status is TrainingStatus.progress:
                 print(f"Progress {tstate.progress:.2%} as of {tstamp()}")
-            elif tstate.status is TrainingSessionInfo.State.complete:
+            elif tstate.status is TrainingStatus.complete:
                 print(f"Completed on {tstamp()}")
 
     def start(self):

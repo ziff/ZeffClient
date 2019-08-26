@@ -1,6 +1,7 @@
 """Zeff Cloud endpoints."""
 __docformat__ = "reStructuredText en"
 
+import re
 import dataclasses
 from typing import List, Dict
 import urllib.parse
@@ -41,6 +42,14 @@ class ZeffCloudResource:
             is not in the named arguments.
         """
         return self.loc_url.format(**argv)
+
+    def variables(self):
+        """Return the list of variables in the URL.
+
+        The ``loc_url`` may contain variables of the form ``{key}``. This
+        will return the name of each of those variables.
+        """
+        return re.findall(r"{(\w+)}", self.loc_url)
 
 
 class ZeffCloudResourceMap(dict):

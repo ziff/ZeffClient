@@ -6,7 +6,7 @@ import textwrap
 
 
 class ZeffCloudException(Exception):
-    """Base class for all exceptions when working with Zeff Cloud."""
+    """Base class for all exceptions when communicating with Zeff Cloud."""
 
     def __init__(self, resp, resource: Type, resource_name: str, action: str):
         """Create new exception.
@@ -53,3 +53,26 @@ class ZeffCloudException(Exception):
     def action(self):
         """Return action that was attempted."""
         return self.__action
+
+
+class ZeffCloudModelException(Exception):
+    """Exceptions when working with a model."""
+
+    def __init__(self, model, msg):
+        """Create new exception.
+
+        :param model: The model the problem occurred on.
+        """
+        super().__init__()
+        self.__model = model
+        self.__message = msg
+
+    def __str__(self):
+        """Return message string for exception."""
+        return textwrap.dedent(
+            f"""\
+            {self.__message}:
+            model version {self.__model.version}
+            dataset {self.__model.dataset_id}
+            """
+        ).replace("\n", " ")

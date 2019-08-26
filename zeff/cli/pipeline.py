@@ -52,13 +52,19 @@ def subparser_pipeline(parser, config):
     )
 
 
-def build_pipeline(options, zeffcloud):
+def build_pipeline(options, zeffcloud, *args, **kwargs):
     """Build a record upload pipeline based on CLI options.
 
     :param options: Command line options.
 
     :param zeffcloud: An upload generator that takes a record builder
         generator as the first parameter.
+
+    :param *args: Additional positional arguments to give to ``zeffcloud``
+        generator.
+
+    :param **kwargs: Additional key word arguments to give to ``zeffcloud``
+        generator.
 
     :return: A tuple of Counter and last generator in pipeline. The
         counter counts the number of configuration records generated.
@@ -108,5 +114,7 @@ def build_pipeline(options, zeffcloud):
         options.org_id,
         options.user_id,
         options.records_datasetid,
+        *args,
+        **kwargs,
     )
     return counter, generator

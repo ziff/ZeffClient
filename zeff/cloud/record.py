@@ -29,15 +29,12 @@ class Record(Resource):
         tag = "tag:zeff.com,2019-07:records"
         resp = self.request(tag, dataset_id=dataset.dataset_id, record_id=record_id)
         if resp.status_code not in [200]:
-            LOGGER.error(
-                "Error loading record %s: (%d) %s; %s",
-                record_id,
-                resp.status_code,
-                resp.reason,
-                resp.text,
-            )
             raise ZeffCloudException(resp, type(self), record_id, "load")
         data = resp.json()["data"]
         self.__dict__.update({Resource.snake_case(k): v for k, v in data.items()})
         assert self.dataset_id == dataset.dataset_id
         assert self.record_id == record_id
+
+    def __str__(self):
+        """Return user friendly representation."""
+        return f"<Record dataset:{self.dataset_id} record:{self.record_id}>"

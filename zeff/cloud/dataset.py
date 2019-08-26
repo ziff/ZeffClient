@@ -2,13 +2,11 @@
 __docformat__ = "reStructuredText en"
 
 import logging
-import enum
 import json
-import datetime
 from typing import Iterator
 from .exception import ZeffCloudException
 from .resource import Resource
-from .encoder import RecordEncoder
+from .training import TrainingSessionInfo
 
 
 LOGGER = logging.getLogger("zeffclient.record.uploader")
@@ -38,13 +36,6 @@ class Dataset(Resource):
         body = {"title": title, "description": description}
         resp = resource.request(tag, method="POST", data=json.dumps(body))
         if resp.status_code not in [201]:
-            LOGGER.error(
-                "Error creating dataset %s: (%d) %s; %s",
-                title,
-                resp.status_code,
-                resp.reason,
-                resp.text,
-            )
             raise ZeffCloudException(resp, cls, title, "create")
         data = resp.json()["data"]
         assert data["title"] == title
@@ -68,35 +59,36 @@ class Dataset(Resource):
         tag = "tag:zeff.com,2019-07:datasets"
         resp = self.request(tag, dataset_id=dataset_id)
         if resp.status_code not in [200]:
-            LOGGER.error(
-                "Error loading dataset %s: (%d) %s; %s",
-                dataset_id,
-                resp.status_code,
-                resp.reason,
-                resp.text,
-            )
             raise ZeffCloudException(resp, type(self), dataset_id, "load")
         data = resp.json()["data"]
         self.__dict__.update({Resource.snake_case(k): v for k, v in data.items()})
         assert self.dataset_id == dataset_id
+
+    def models(self):
+        """Return iterator over all models in the dataset.
+
+        :raises ZeffCloudException: Exception in communication with Zeff Cloud.
+        """
+        from .model import Model
+
+        tag = "tag:zeff.com,2019-07:models/list"
+        resp = self.request(tag, dataset_id=self.dataset_id)
+        if resp.status_code not in [200]:
+            raise ZeffCloudException(resp, type(self), self.dataset_id, "list models")
+        return (Model(self, d["version"]) for d in resp.json().get("data", []))
 
     def records(self):
         """Return iterator over all records in the dataset.
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
+        from .record import Record
+
         tag = "tag:zeff.com,2019-07:records/list"
         resp = self.request(tag, dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
-            LOGGER.error(
-                "Error listing dataset records %s: (%d) %s; %s",
-                self.dataset_id,
-                resp.status_code,
-                resp.reason,
-                resp.text,
-            )
             raise ZeffCloudException(resp, type(self), self.dataset_id, "list records")
-        return iter(resp.json().get("data", []))
+        return (Record(self, d["recordId"]) for d in resp.json().get("data", []))
 
     def add_record(self, record):
         """Add a record to this dataset.
@@ -107,27 +99,8 @@ class Dataset(Resource):
         """
         from .record import Record
 
-        LOGGER.info("Begin upload record %s", record.name)
         tag = "tag:zeff.com,2019-07:records/add"
-        batch = {"batch": [record]}
-        val = json.dumps(batch, cls=RecordEncoder)
-        resp = self.request(tag, method="POST", data=val, dataset_id=self.dataset_id)
-        if resp.status_code not in [200, 201]:
-            LOGGER.error(
-                "Error upload record %s: (%d) %s; %s",
-                record.name,
-                resp.status_code,
-                resp.reason,
-                resp.text,
-            )
-            raise ZeffCloudException(resp, type(self), record.name, "add record")
-        data = resp.json()["data"][0]
-        LOGGER.info(
-            """End upload record %s: recordId = %s location = %s""",
-            record.name,
-            data["recordId"],
-            data["location"],
-        )
+        data = self.add_resource(record, record.name, "recordId", tag)
         return Record(self, data["recordId"])
 
     @property
@@ -156,76 +129,3 @@ class Dataset(Resource):
         resp = self.request(tag, method="DELETE", dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), self.dataset_id, "training stop")
-
-
-class TrainingSessionInfo:
-    """Information about the current training session."""
-
-    class State(enum.Enum):
-        """Training state of training session."""
-
-        unknown = "UNKNOWN"
-        queued = "QUEUED"
-        started = "STARTED"
-        progress = "PCT_COMPLETE"
-        complete = "COMPLETE"
-
-        def __str__(self):
-            """Return a user appropriate name of this state."""
-            return self.name
-
-        def __repr__(self):
-            """Return a representation of this state."""
-            return "<%s.%s>" % (self.__class__.__name__, self.name)
-
-    def __init__(self, status_json):
-        """Create a new training information.
-
-        :param status_json: The status JSON returned from a train
-            status request.
-        """
-        self.__data = status_json
-
-    @property
-    def status(self) -> "TrainingSessionInfo.State":
-        """Return state of current training session."""
-        value = self.__data["status"]
-        return TrainingSessionInfo.State(value if value is not None else "unknown")
-
-    @property
-    def progress(self) -> float:
-        """Return progress, [0.0, 1.0], of current training session."""
-        value = self.__data["percentComplete"]
-        return float(value) if value is not None else 0.0
-
-    @property
-    def model_version(self) -> str:
-        """Return model version of the current training session."""
-        value = self.__data["modelVersion"]
-        return str(value) if value is not None else "unknown"
-
-    @property
-    def model_location(self) -> str:
-        """Return the URL to the model."""
-        value = self.__data["modelLocation"]
-        return str(value) if value is not None else "unknown"
-
-    @property
-    def created_timestamp(self) -> datetime.datetime:
-        """Return the timestamp when this training session was created."""
-        value = self.__data["createdAt"]
-        if value is not None:
-            ret = datetime.datetime.fromisoformat(value)
-        else:
-            ret = datetime.datetime.min
-        return ret
-
-    @property
-    def updated_timestamp(self) -> datetime.datetime:
-        """Return timestamp when current session status was last updated."""
-        value = self.__data["updatedAt"]
-        if value is not None:
-            ret = datetime.datetime.fromisoformat(value)
-        else:
-            ret = self.created_timestamp
-        return ret
