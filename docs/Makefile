@@ -3,27 +3,33 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
+VERSION       = $(shell cd .. && python -m setup --version)
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
+AWSS3         ?= aws --profile=zeff-docs s3
 SOURCEDIR     = source
-BUILDDIR      = ../build
+BUILDDIR      = ../build/share/zeffclient
+PUBLISHURL    = s3://zeff-docs/zeffclient/$(VERSION)
 
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 
+publish: docs
+	$(AWSS3) sync "$(BUILDDIR)/html" $(PUBLISHURL)
+ifeq ($(findstring +,$(VERSION)),)
+	$(AWSS3) sync $(PUBLISHURL) s3://zeff-docs/zeffclient/latest
+endif
+
+
 docs: uml example_archive apidoc
 	@$(SPHINXBUILD) -M html $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-
-
-docs_OFF:
-	#@$(SPHINXBUILD) -M singlehtml $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-	#@$(SPHINXBUILD) -M epub $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-	#@$(SPHINXBUILD) -M latex $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-	#@$(SPHINXBUILD) -M latexpdf $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-	#@$(SPHINXBUILD) -M doctest $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
-	#@$(SPHINXBUILD) -M doctest $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) -M singlehtml $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) -M epub $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) -M latex $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) -M latexpdf $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
+	@$(SPHINXBUILD) -M doctest $(SPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)"
 
 
 apidoc:

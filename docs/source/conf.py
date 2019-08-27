@@ -34,7 +34,13 @@ version = ".".join(release.split(".")[:2])
 
 exclude_patterns = []
 
-extensions = ["sphinx.ext.autodoc", "sphinxcontrib.plantuml"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.doctest",
+    "sphinxcontrib.plantuml",
+]
 
 templates_path = ["_templates"]
 

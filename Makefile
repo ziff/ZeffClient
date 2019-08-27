@@ -7,19 +7,20 @@ PIPFLAGS      = --quiet
 install:			## Install system
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e .
-	python setup.py install
+	python -m setup install
 
 
-publish: clean docs	## Publish the library to the central PyPi repository
-	${PIP} ${PIPFLAGS} install --upgrade pip setuptools wheel twine
-	python setup.py sdist bdist_wheel
+publish: clean		## Publish the library to the central PyPi repository
+	@${PIP} ${PIPFLAGS} install --upgrade pip setuptools wheel twine
+	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
+	python -m setup sdist bdist_wheel
 	python -m twine check dist/*
 	python -m twine upload --verbose dist/*
-	@echo TODO Publish docs to latest
+	@$(MAKE) -C docs publish
 
 
 docs:				## Create documentation
-	@echo Update required tools
+	@echo Update documentation tools
 	@${PIP} ${PIPFLAGS} install --upgrade pip
 	@${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
 	@echo Create documentation
@@ -37,6 +38,7 @@ validate: lint test	## Validate project for CI, CD, and publish
 
 
 clean:				## Clean generated files
+	@$(MAKE) -C docs clean
 	@rm -rf build
 	@rm -rf dist
 	@rm -rf sdist
@@ -46,7 +48,6 @@ clean:				## Clean generated files
 	@rm -rf *.egg-info
 	@rm -rf pip-wheel-metadata
 	@find zeff -name '__pycache__' -exec rm -rf {} \; -prune
-	@$(MAKE) -C docs clean
 
 
 clean_cache:		## Clean caches
