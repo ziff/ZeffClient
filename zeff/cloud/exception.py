@@ -58,10 +58,11 @@ class ZeffCloudException(Exception):
 class ZeffCloudModelException(Exception):
     """Exceptions when working with a model."""
 
-    def __init__(self, model, msg):
+    def __init__(self, msg, model=None):
         """Create new exception.
 
-        :param model: The model the problem occurred on.
+        :param model: The model the problem occurred on or `None` if a
+            model cannot be created.
         """
         super().__init__()
         self.__model = model
@@ -69,10 +70,12 @@ class ZeffCloudModelException(Exception):
 
     def __str__(self):
         """Return message string for exception."""
-        return textwrap.dedent(
-            f"""\
-            {self.__message}:
-            model version {self.__model.version}
-            dataset {self.__model.dataset_id}
-            """
-        ).replace("\n", " ")
+        if self.__model:
+            ret = f"""\
+                {self.__message}:
+                model version {self.__model.version}
+                dataset {self.__model.dataset_id}
+                """
+        else:
+            ret = f"""{self.__message}"""
+        return textwrap.dedent(ret).replace("\n", " ")

@@ -15,7 +15,7 @@ LOGGER = logging.getLogger("zeffclient.record.uploader")
 class Model(Resource):
     """Model in the Zeff Cloud API."""
 
-    def __init__(self, dataset, version: str):
+    def __init__(self, dataset, version: int):
         """Load a model version from Zeff Cloud.
 
         :param dataset: The containing Dataset.
@@ -31,7 +31,7 @@ class Model(Resource):
         tag = "tag:zeff.com,2019-07:models"
         resp = self.request(tag, dataset_id=dataset.dataset_id, version=version)
         if resp.status_code not in [200]:
-            raise ZeffCloudException(resp, type(self), version, "load")
+            raise ZeffCloudException(resp, type(self), str(version), "load")
         self.__data = resp.json()["data"]
         assert self.__data["datasetId"] == dataset.dataset_id
         assert self.version == version
@@ -98,7 +98,7 @@ class Model(Resource):
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
         if self.status is not TrainingStatus.complete:
-            raise ZeffCloudModelException(self, "Model training incomplete")
+            raise ZeffCloudModelException("Model training incomplete", model=self)
         tag = "tag:zeff.com,2019-07:models/records/add"
         data = self.add_resource(record, record.name, "recordId", tag)
         return Record(self, data["recordId"])

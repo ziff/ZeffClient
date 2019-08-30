@@ -4,7 +4,8 @@ __all__ = ["predict_subparser"]
 
 import sys
 from pathlib import Path
-import logging
+from time import sleep
+import datetime
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
@@ -32,7 +33,23 @@ def predict_subparser(subparsers, config):
 def predict(options):
     """Generate a set of records from options."""
     sys.path.append(str(Path.cwd()))
-    _, records = build_pipeline(options, zeff.Predictor, options.model_version)
+    now = datetime.datetime.utcnow()
+    try:
+        _, records = build_pipeline(options, zeff.Predictor, options.model_version)
+    except zeff.cloud.exception.ZeffCloudModelException as err:
+        print(err, file=sys.stderr)
+        sys.exit(1)
+    records = list(records)
+    backoff = 1.0
+    cutoff = 64.0
+    while backoff < cutoff and records:
+        sleep(backoff)
+        backoff = backoff * 2
+        for record in list(records):
+            if record.updated_timestamp > now:
+                records.remove(record)
+                print(record)
     for record in records:
-        logging.debug(record)
-    # Get the results and output them
+        print(
+            "Predictions not complete {record.record_id} in dataset {record.dataset_id}"
+        )

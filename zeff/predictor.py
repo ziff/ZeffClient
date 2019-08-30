@@ -7,6 +7,7 @@ from .zeffcloud import ZeffCloudResourceMap
 from .cloud.exception import ZeffCloudException, ZeffCloudModelException
 from .cloud.dataset import Dataset
 from .cloud.model import Model
+from .cloud.training import TrainingStatus
 
 LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
@@ -33,7 +34,8 @@ class Predictor:
 
         :param dataset_id: The dataset ID that contains the model.
 
-        :param version: The model version to make inferences against.
+        :param version: The model version to make inferences against. The
+            default is the latest trained version.
         """
         self.upstream = upstream
 
@@ -42,7 +44,19 @@ class Predictor:
             info, root=server_url, org_id=org_id, user_id=user_id
         )
         dataset = Dataset(dataset_id, self.resource_map)
-        self.model = Model(dataset, version)
+        if version is None:
+            self.model = None
+            for model in dataset.models():
+                if model.status is not TrainingStatus.complete:
+                    continue
+                elif self.model is None:
+                    self.model = model
+                elif self.model.version < model.version:
+                    self.model = model
+            if self.model is None:
+                raise ZeffCloudModelException("No completed models available")
+        else:
+            self.model = Model(dataset, version)
 
     def __iter__(self):
         """Return this object."""
@@ -53,9 +67,11 @@ class Predictor:
         while True:
             try:
                 record = next(self.upstream)
-                return self.model.add_record(record)
+                ret = self.model.add_record(record)
+                if ret is not None:
+                    return ret
             except ZeffCloudException as err:
                 LOGGER_UPLOADER.exception(err)
             except ZeffCloudModelException as err:
                 LOGGER_UPLOADER.error(err)
-                break
+                raise StopIteration()
