@@ -12,3 +12,9 @@
 [tool.black]
 line-length = 88
 
+[tool.towncrier]
+package = "zeff"
+directory = "changelog"
+filename = "CHANGELOG.rst"
+title_format = "zeff {version} ({project_date})"
+template = "changelog/_template.rst"

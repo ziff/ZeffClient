@@ -27,6 +27,7 @@ ZeffClient
    :alt: PyPi Downloads
    :target: https://pepy.tech/project/ZeffClient
 
+.. docs index include start
 
 
 Overview
@@ -52,11 +53,11 @@ Features
 Links
 =====
 
-   - `Documentation <https://ziff.com/docs/>`_
+   - `Documentation <https://ziff.com/docs/zeffclient>`_
 
    - `Bugs / Requests <https://github.com/ziff/ZeffClient/issues>`_
 
-   - `Changelog <https://ziff.com/docs/changelog.html>`_
+   - `Changelog <https://ziff.com/docs/zeffclient/changelog.html>`_
 
 
 
@@ -73,12 +74,17 @@ Before creating any commit:
    1. ``make validate``
 
 
+License
+=======
 
-Copyright & License
-===================
+TBD
+
+
+.. docs index include end
+
+Copyright
+=========
 
 :copyright: |copy| 2019 Ziff, Inc.
 
-
 .. |copy| unicode:: 0xA9 .. copyright sign
-

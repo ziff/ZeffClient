@@ -1,5 +1,6 @@
+############
 Installation
-============
+############
 
 .. toctree::
    :hidden:
@@ -34,5 +35,3 @@ apt-get, etc).
 
    - plantuml
    - graphviz
-
-

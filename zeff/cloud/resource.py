@@ -73,7 +73,7 @@ class Resource:
         This generalizes the operation of adding to a set of resources
         contained by this resource.
 
-        .. warn::
+        .. warning::
             There must be a class in ``encoder.py`` that has the name
             ``{rsrc.__name__}Encoder`` for this method to operate correctly.
 

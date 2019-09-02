@@ -18,16 +18,14 @@ sys.path.insert(0, os.path.abspath("../.."))
 
 # -- Project information -----------------------------------------------------
 
-project = "ZeffClient"
-copyright = "2019, Ziff, Inc."
-author = "Lance Finn Helsten <lanhel@flyingtitans.com>"
-
-# The full version, including alpha/beta/rc tags
 from pkg_resources import get_distribution
 
 release = get_distribution("ZeffClient").version
-
 version = ".".join(release.split(".")[:2])
+
+project = "ZeffClient"
+copyright = f"2019, Ziff, Inc. ({release})"
+author = "Lance Finn Helsten <lanhel@flyingtitans.com>"
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,6 +34,10 @@ exclude_patterns = []
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.extlinks",
     "sphinx.ext.doctest",
@@ -45,6 +47,12 @@ extensions = [
 templates_path = ["_templates"]
 
 today_fmt = "%d %B %Y"
+
+rst_prolog = """
+"""
+
+rst_epilog = """
+"""
 
 
 # -- Options for HTML output -------------------------------------------------
