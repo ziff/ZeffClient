@@ -1,5 +1,7 @@
-- CF_BRANCH: feature/cicd
-  CF_BRANCH_TAG_NORMALIZED: feature_cicd
+- CF_REPO_NAME: ZeffClient
+  CF_REPO_OWNER: ziff
+  CF_BRANCH: feature/cicd
+  CF_BRANCH_TAG_NORMALIZED: featurecicd
   CF_RELEASE_TAG: 0.0.0
   # This URL is to prevent publishing to live PyPI
   TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
