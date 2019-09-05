@@ -17,11 +17,9 @@ install:			## Install system
 # For automated upload with API token the following is required:
 # ``export TWINE_USERNAME=__token__``
 # ``export TWINE_PASSWORD=pypi-<token_value>``
-publish:			## Publish the library to the central PyPi repository
+publish: clean		## Publish the library to the central PyPi repository
 	${PIP} ${PIPFLAGS} install --upgrade pip setuptools wheel twine
 	${PIP} ${PIPFLAGS} install --upgrade -e ".[docs]"
-	rm -rf dist
-	rm -rf sdist
 	python -m setup sdist bdist_wheel
 	python -m twine check dist/*
 	python -m twine upload --verbose dist/*

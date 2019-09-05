@@ -1,0 +1,71 @@
+version: "1.0"
+stages:
+  - clone
+  - build
+  - test
+  - integration
+  - deploy
+steps:
+  EchoVariables:
+    stage: clone
+    title: Variable example
+    image: alpine
+    commands:
+      - echo $CF_REPO_NAME
+      - echo $CF_REPO_OWNER
+      - echo $CF_TARGET_BRANCH
+      - echo $CF_BRANCH
+      - echo $CF_REVISION
+      - echo $CF_BUILD_URL
+      - echo $CF_BUILD_ID
+      - echo $CF_BRANCH_TAG_NORMALIZED
+      - echo $CF_RELEASE_TAG
+      - echo $RELEASE_TAG
+      - echo $RELEASE_NAME
+      - echo $RELEASE_DESCRIPTION
+      - echo $tag
+      - echo $TWINE_REPOSITORY_URL
+      - echo $TWINE_USERNAME
+      - echo $TWINE_PASSWORD
+  main_clone:
+    type: git-clone
+    stage: clone
+    description: "Cloning main repository..."
+    repo: "ziff/ZeffClient"
+    revision: "${{CF_BRANCH}}"
+  ZeffClientImage:
+    type: build
+    stage: build
+    title: "Building ZeffClient Docker Image"
+    image_name: "ziff/ZeffClient"
+    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
+    dockerfile: .codefresh/Dockerfile
+  UnitTests:
+    stage: test
+    title: "Running Unit tests"
+    image: ${{ZeffClientImage}}
+    commands:
+      - make validate
+  PublishApproval:
+    stage: deploy
+    type: pending-approval
+    title: "Approval Public Release"
+    timeout:
+      duration: 2
+      finalState: denied
+    when:
+      condition:
+        all:
+          masterBranch: '"${{CF_BRANCH}}" == "master"'
+          taggedVersion: 'match("${{CF_RELEASE_TAG}}", "^\\d+\\.\\d+\\.\\d+$", false)'
+  Publish:
+    stage: deploy
+    title: "Publish source, binary, and documentation"
+    image: ${{ZeffClientImage}}
+    commands:
+      - make publish
+    when:
+      steps:
+      - name: PublishApproval
+        on:
+        - approved

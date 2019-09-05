@@ -1,0 +1,34 @@
+version: "1.0"
+stages:
+  - clone
+  - deploy
+steps:
+  main_clone:
+    type: git-clone
+    stage: clone
+    description: "Cloning main repository..."
+    repo: "ziff/ZeffClient"
+    revision: "${{CF_BRANCH}}"
+  PublishApproval:
+    stage: deploy
+    type: pending-approval
+    title: "Approve Public Release"
+    timeout:
+      duration: 2
+      finalState: denied
+    when:
+      condition:
+        all:
+          masterBranch: '"${{CF_BRANCH}}" == "master"'
+          taggedVersion: 'match("${{CF_RELEASE_TAG}}", "^\\d+\\.\\d+\\.\\d+$", false)'
+  Publish:
+    stage: deploy
+    title: "Publish source, binary, and documentation"
+    image: ${{ZeffClientImage}}
+    commands:
+      - make publish
+    when:
+      steps:
+      - name: PublishApproval
+        on:
+        - approved
