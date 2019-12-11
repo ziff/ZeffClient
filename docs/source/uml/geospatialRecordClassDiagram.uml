@@ -1,13 +1,13 @@
 @startuml
 
-namespace ZeffClient.genericrecord {
-	class Record {
+namespace ZeffClient.geospatialrecord {
+	class GeospatialRecord {
 		name: String
 		void validate()
 		void submit()
 	}
-	Record "1" *-- "0..*" StructuredData
-	Record "1" *-- "0..*" UnstructuredData
+	GeospatialRecord "1" *-- "0..*" StructuredData
+	GeospatialRecord "1" *-- "0..*" UnstructuredData
 
 	class StructuredData {
 		name: String
@@ -15,6 +15,7 @@ namespace ZeffClient.genericrecord {
 		data_type: [continuous, discrete]
 		target: [yes, no, ignore]
 	}
+	note bottom of StructuredData: Required entries:\n`latitude`\n`longitude`
 
 	class UnstructuredData{
 		data: URI
@@ -25,3 +26,4 @@ namespace ZeffClient.genericrecord {
 }
 
 @enduml
+

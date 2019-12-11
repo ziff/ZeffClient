@@ -4,6 +4,7 @@ __docformat__ = "reStructuredText en"
 import logging
 import json
 from typing import Iterator
+from ..zeffdatasettype import ZeffDatasetType
 from .exception import ZeffCloudException
 from .resource import Resource
 from .training import TrainingSessionInfo
@@ -16,10 +17,14 @@ class Dataset(Resource):
     """Dataset in the Zeff Cloud API."""
 
     @classmethod
-    def create_dataset(cls, resource_map, title: str, description: str) -> "Dataset":
+    def create_dataset(
+        cls, resource_map, dataset_type: ZeffDatasetType, title: str, description: str
+    ) -> "Dataset":
         """Create a new dataset on Zeff Cloud server.
 
         :param resource_map: Map of tags to Zeff Cloud resource objects.
+
+        :param dataset_type: Type of dataset to create.
 
         :param title: Title of the new dataset.
 
@@ -31,8 +36,8 @@ class Dataset(Resource):
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
+        tag = dataset_type.dataset_add_tag
         resource = Resource(resource_map)
-        tag = "tag:zeff.com,2019-07:datasets/add"
         body = {"title": title, "description": description}
         resp = resource.request(tag, method="POST", data=json.dumps(body))
         if resp.status_code not in [201]:
@@ -56,12 +61,15 @@ class Dataset(Resource):
         """
         super().__init__(resource_map)
         self.dataset_id = None
-        tag = "tag:zeff.com,2019-07:datasets"
+        self.dataset_type = ZeffDatasetType.generic
+        tag = "tag:zeff.com,2019-12:datasets"
         resp = self.request(tag, dataset_id=dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), dataset_id, "load")
         data = resp.json()["data"]
-        self.__dict__.update({Resource.snake_case(k): v for k, v in data.items()})
+        attrs = {Resource.snake_case(k): v for k, v in data.items()}
+        attrs["dataset_type"] = ZeffDatasetType(attrs["dataset_type"])
+        self.__dict__.update(attrs)
         assert self.dataset_id == dataset_id
 
     def models(self):
@@ -71,7 +79,7 @@ class Dataset(Resource):
         """
         from .model import Model
 
-        tag = "tag:zeff.com,2019-07:models/list"
+        tag = self.dataset_type.models_list_tag
         resp = self.request(tag, dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), self.dataset_id, "list models")
@@ -84,7 +92,7 @@ class Dataset(Resource):
         """
         from .record import Record
 
-        tag = "tag:zeff.com,2019-07:records/list"
+        tag = self.dataset_type.records_list_tag
         resp = self.request(tag, dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), self.dataset_id, "list records")
@@ -99,14 +107,14 @@ class Dataset(Resource):
         """
         from .record import Record
 
-        tag = "tag:zeff.com,2019-07:records/add"
+        tag = self.dataset_type.record_add_tag
         data = self.add_resource(record, record.name, "recordId", tag)
         return Record(self, data["recordId"])
 
     @property
     def training_status(self):
         """Return current training status metrics object."""
-        tag = "tag:zeff.com,2019-07:datasets/train"
+        tag = "tag:zeff.com,2019-12:datasets/train"
         resp = self.request(tag, method="GET", dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(
@@ -116,7 +124,7 @@ class Dataset(Resource):
 
     def start_training(self):
         """Start or restart the current training session."""
-        tag = "tag:zeff.com,2019-07:datasets/train"
+        tag = "tag:zeff.com,2019-12:datasets/train"
         resp = self.request(tag, method="PUT", dataset_id=self.dataset_id)
         if resp.status_code not in [202]:
             raise ZeffCloudException(
@@ -125,7 +133,7 @@ class Dataset(Resource):
 
     def stop_training(self):
         """Stop the current training session."""
-        tag = "tag:zeff.com,2019-07:datasets/train"
+        tag = "tag:zeff.com,2019-12:datasets/train"
         resp = self.request(tag, method="DELETE", dataset_id=self.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), self.dataset_id, "training stop")

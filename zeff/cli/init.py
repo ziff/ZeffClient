@@ -4,10 +4,12 @@ __all__ = ["init_subparser"]
 
 import sys
 import errno
+import argparse
 from string import Template
 from pathlib import Path, PurePath
 import importlib
 from configparser import ConfigParser, ExtendedInterpolation, NoOptionError
+from zeff.zeffdatasettype import ZeffDatasetType
 from zeff.zeffcloud import ZeffCloudResourceMap
 from zeff.cloud import Dataset, ZeffCloudException
 
@@ -23,11 +25,27 @@ def init_subparser(subparsers):
         "init", help="""Setup a new project in the current directory."""
     )
     parser.add_argument(
+        "dataset_type",
+        choices=[e.name for e in ZeffDatasetType],
+        action=DatasetTypeAction,
+        help="""Type of project to create.""",
+    )
+    parser.add_argument(
         "--overwrite-existing",
         action="store_true",
         help="""If source files exist overwrite with template.""",
     )
     parser.set_defaults(func=init_project)
+
+
+class DatasetTypeAction(argparse.Action):
+    """Convert a dataset type string into associated enum."""
+
+    # pylint: disable=too-few-public-methods
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        values = getattr(ZeffDatasetType, values)
+        setattr(namespace, self.dest, values)
 
 
 def init_project(options):
@@ -45,6 +63,9 @@ class Project:
     def __init__(self, options):
         self.options = options
         self.optconf = self.options.configuration
+        self.optconf["records"][
+            "record_validator"
+        ] = self.options.dataset_type.validator
         self.config = ConfigParser(
             strict=True,
             allow_no_value=False,
@@ -119,9 +140,17 @@ class Project:
             use_variables=True,
         )
 
+        ask_update(
+            "records",
+            "record_validator",
+            "Record validator python name",
+            use_variables=True,
+        )
+
     def create_dataset(self):
         """Create dataset on server and update config file."""
         if self.options.configuration.get("records", "datasetid") == "":
+            datasettype = self.options.dataset_type
             try:
                 dataset_title = self.config.get("records", "dataset_title")
                 dataset_desc = self.config.get("records", "dataset_desc")
@@ -133,7 +162,9 @@ class Project:
                 org_id=self.optconf.get("server", "org_id"),
                 user_id=self.optconf.get("server", "user_id"),
             )
-            dataset = Dataset.create_dataset(resource_map, dataset_title, dataset_desc)
+            dataset = Dataset.create_dataset(
+                resource_map, datasettype, dataset_title, dataset_desc
+            )
             datasetid = dataset.dataset_id
             self.config.set("records", "datasetid", datasetid)
 

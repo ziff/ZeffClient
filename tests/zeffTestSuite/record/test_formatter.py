@@ -6,6 +6,8 @@ from zeff.record import (
     Record,
     StructuredData,
     UnstructuredData,
+    Target,
+    DataType,
     format_record_restructuredtext,
 )
 
@@ -15,30 +17,15 @@ def test_format_record_restructuredtext():
     r = Record("Formatted Record")
 
     sd_info = [
-        (
-            "sold_price",
-            1368411.0,
-            StructuredData.DataType.CONTINUOUS,
-            StructuredData.Target.NO,
-        ),
-        (
-            "basement",
-            2412.0,
-            StructuredData.DataType.CONTINUOUS,
-            StructuredData.Target.NO,
-        ),
+        ("sold_price", 1368411.0, DataType.CONTINUOUS, Target.NO),
+        ("basement", 2412.0, DataType.CONTINUOUS, Target.NO),
         (
             "garage_parking",
             "uncovered; rv parking; storage above; extra length; workbench",
-            StructuredData.DataType.CATEGORY,
-            StructuredData.Target.NO,
+            DataType.CATEGORY,
+            Target.NO,
         ),
-        (
-            "lot",
-            "auto-part; private",
-            StructuredData.DataType.CATEGORY,
-            StructuredData.Target.NO,
-        ),
+        ("lot", "auto-part; private", DataType.CATEGORY, Target.NO),
     ]
     for info in sd_info:
         sd = StructuredData(*info)

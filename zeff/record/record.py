@@ -3,8 +3,10 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["Record"]
 
-import logging
 import dataclasses
+import typing
+from .structureddata import StructuredData
+from .unstructureddata import UnstructuredData
 
 
 @dataclasses.dataclass()
@@ -12,24 +14,22 @@ class Record:
     """This represents a single record in Zeff.
 
     :property name: The unique name for the record.
+
+    :property structured_data: List of ``StructuredData`` objects that
+        belong to this record. This list should not be modified directly;
+        setting ``StructuredData.record`` property will add the object
+        to the list.
+
+    :property unstructured_data: List of ``UnstructuredData`` objects that
+        belong to this record. This list should not be modified directly;
+        setting ``UnstructuredData.record`` property will add the object
+        to the list.
     """
 
     name: str
-
-    def validate(self):
-        """Validate to ensure that it will be accepted on upload.
-
-        :exception TypeError: If a property in a record is an incorrect type.
-
-        :exception ValueError: If a property in a record is not within
-            acceptable range (e.g. expects a continuous value such as
-            integer but gets a descrete value such as a string).
-        """
-        # pylint: disable=no-member
-        logger = logging.getLogger("zeffclient.record.validator")
-        logger.info("Begin validating record %s", self.name)
-        for data in self.structured_data:
-            data.validate()
-        for data in self.unstructured_data:
-            data.validate()
-        logger.info("End validating record %s", self.name)
+    structured_data: typing.List[StructuredData] = dataclasses.field(
+        default_factory=list
+    )
+    unstructured_data: typing.List[UnstructuredData] = dataclasses.field(
+        default_factory=list
+    )

@@ -33,7 +33,7 @@ class Record(Resource):
 
     def update(self):
         """Update record information from Zeff Cloud."""
-        tag = "tag:zeff.com,2019-07:records"
+        tag = self.dataset.dataset_type.record_tag
         resp = self.request(
             tag, dataset_id=self.dataset.dataset_id, record_id=self.__record_id
         )

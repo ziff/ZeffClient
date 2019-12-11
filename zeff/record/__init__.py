@@ -18,9 +18,20 @@ other unstructured data.
    :align: center
 """
 __docformat__ = "reStructuredText en"
-__all__ = ["Record", "StructuredData", "UnstructuredData"]
+__all__ = [
+    "Record",
+    "StructuredData",
+    "UnstructuredData",
+    "UnstructuredTemporalData",
+    "Target",
+    "DataType",
+    "FileType",
+]
 
+from .symbolic import *
 from .record import *
-from .structured_data import *
-from .unstructured_data import *
+from .structureddata import *
+from .unstructureddata import *
+from .unstructuredtemporaldata import *
+from .file import *
 from .formatter import *

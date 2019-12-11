@@ -3,48 +3,42 @@
 namespace ZeffClient.temporalrecord {
 	class TemporalRecord {
 		name: String
-		windowSize: duration
 		void validate()
 		void submit()
 	}
-	TemporalRecord "0..*" o-- "1..*" File : files
-	TemporalRecord "1" *-- "0..*" Events : event_sets
-	'TemporalRecord "1" *-- "0..*" FileContext : contexts
 	TemporalRecord "1" *-- "0..*" StructuredData
 	TemporalRecord "1" *-- "0..*" UnstructuredData
 
-	class File {
-		data: URI
-		media_type: RFC2046
-		group_by: String
-	}
-
-	class Events {
-	}
-	Events "1" *-- "0..*" Event
-
-	class Event {
+	class StructuredData {
 		name: String
-		value: Bytes
-		start: Period
-		end: Period
+		value: String, Int, Float, Bool
+		data_type: [continuous, discrete]
+		target: [yes, no, ignore] = ignore
 	}
+
+	class UnstructuredData {
+		data: URI
+		file_type: [video, audio]
+		group_by: String
+		window: Duration
+	}
+	UnstructuredData "1" *-- "0..*" FileContext
 
 	class FileContext {
-	}
-	File "1" - "1" Events
-	(File, Events) .. FileContext
-
-	class StructuredData{
 		name: String
 		value: Bytes
-		data_type: (continuous, discrete)
+		data_type: [continuous, discrete]
+		location_start: Period
+		location_end: Period
 	}
+	FileContext "1" *-- "0..*" SubContext
 
-	class UnstructuredData{
-		data: URI
-		media_type: RFC2046
-		group_by: String
+	class SubContext {
+		name: String
+		value: Bytes
+		data_type: [continuous, discrete]
+		location_start: Period
+		location_end: Period
 	}
 }
 

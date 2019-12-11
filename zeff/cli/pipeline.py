@@ -23,7 +23,7 @@ def subparser_pipeline(parser, config):
         "--records-config-generator",
         default=config["records"]["records_config_generator"],
         help=f"""Name of python class that will generate URLs to record
-            sources (default: {config["records"]["records_config_generator"]})""",
+            sources (default: `{config["records"]["records_config_generator"]}`)""",
     )
     parser.add_argument(
         "--records-config-arg",
@@ -42,6 +42,12 @@ def subparser_pipeline(parser, config):
         default=config["records"]["record_builder_arg"],
         help=f"""A single argument when record-builder is created
             (default: `{config["records"]["record_builder_arg"]}`)""",
+    )
+    parser.add_argument(
+        "--record-validator",
+        default=config["records"]["record_validator"],
+        help=f"""Name of python class that will validate a record
+            (default: `{config["records"]["record_validator"]}`)""",
     )
     subparser_server(parser, config)
     parser.add_argument(
@@ -73,11 +79,17 @@ def build_pipeline(options, zeffcloud, *args, **kwargs):
     def get_mclass(name):
         path = getattr(options, name)
         logging.debug("Look for %s: `%s`", name, path)
-        m_name, c_name = path.rsplit(".", 1)
         try:
+            m_name, c_name = path.rsplit(".", 1)
             module = importlib.import_module(m_name)
             logging.debug("Found module `%s`", m_name)
             return getattr(module, c_name)
+        except ValueError:
+            print(
+                f"Required value for {name} missing or incorrect format.",
+                file=sys.stderr,
+            )
+            sys.exit(errno.EINVAL)
         except ModuleNotFoundError:
             print(
                 f"{name} module `{m_name}` not found in PYTHONPATH={sys.path}",
@@ -104,7 +116,9 @@ def build_pipeline(options, zeffcloud, *args, **kwargs):
     if options.dry_run == "build":
         return counter, generator
 
-    generator = zeff.validation_generator(generator)
+    record_validator = get_mclass("record_validator")
+    logging.debug("Found record-validator: %s", record_validator)
+    generator = zeff.validation_generator(generator, record_validator)
     if options.dry_run == "validate":
         return counter, generator
 

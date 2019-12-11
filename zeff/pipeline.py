@@ -43,18 +43,21 @@ def record_builder_generator(upstream, builder):
         yield record
 
 
-def validation_generator(upstream):
+def validation_generator(upstream, validator):
     """Validate records from generator and yield valid records.
 
     :param upstream: A generator that will yield record objects that
         may be validated.
+
+    :param validator: A callable object that will take a
+        single parameter that is the record to be validated.
 
     :return: Records that only have validation warnings.
     """
     for record in upstream:
         try:
             LOGGER_VALIDATOR.info("Begin validation record %s", record.name)
-            record.validate()
+            validator(record)
             LOGGER_VALIDATOR.info("End validation record %s", record.name)
             yield record
         except TypeError as err:

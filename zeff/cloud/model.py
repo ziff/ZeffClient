@@ -28,7 +28,7 @@ class Model(Resource):
         self.dataset = dataset
         self.dataset_id = dataset.dataset_id
 
-        tag = "tag:zeff.com,2019-07:models"
+        tag = self.dataset.dataset_type.model_tag
         resp = self.request(tag, dataset_id=dataset.dataset_id, version=version)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), str(version), "load")
@@ -84,7 +84,7 @@ class Model(Resource):
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
-        tag = "tag:zeff.com,2019-07:models/list"
+        tag = self.dataset.dataset_type.model_list_tag
         resp = self.request(tag, dataset_id=self.dataset.dataset_id)
         if resp.status_code not in [200]:
             raise ZeffCloudException(resp, type(self), self.version, "list records")
@@ -99,6 +99,6 @@ class Model(Resource):
         """
         if self.status is not TrainingStatus.complete:
             raise ZeffCloudModelException("Model training incomplete", model=self)
-        tag = "tag:zeff.com,2019-07:models/records/add"
+        tag = self.dataset.dataset_type.model_record_add_tag
         data = self.add_resource(record, record.name, "recordId", tag)
         return Record(self, data["recordId"])
