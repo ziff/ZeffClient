@@ -33,3 +33,6 @@ class Record:
     unstructured_data: typing.List[UnstructuredData] = dataclasses.field(
         default_factory=list
     )
+
+    def __str__(self):
+        return self.name

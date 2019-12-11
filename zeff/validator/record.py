@@ -138,7 +138,7 @@ class RecordValidator:
         parts = urllib.parse.urlsplit(data.data_uri)
         if parts[0] == "file":
             value = "OK"
-            path = pathlib.Path(parts[2])
+            path = pathlib.Path(urllib.parse.unquote(parts[2]))
             if not path.exists():
                 value = "file missing"
             elif not path.is_file():
@@ -155,4 +155,4 @@ class RecordValidator:
             value = resp.reason
         else:
             value = f"Unknown URL scheme {parts[0]}"
-        object.__setattr__(data, "accessible", value)
+        data.accessible = value

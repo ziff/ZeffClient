@@ -91,6 +91,7 @@ import argparse
 
 from zeff import __version__
 
+from .configuration import *
 from .init import *
 from .models import *
 from .upload import *
@@ -98,48 +99,6 @@ from .train import *
 from .predict import *
 from .record_builders import *
 
-
-def load_configuration():
-    """Load configuration from standard locations.
-
-    Configuration files will be loaded in the following order such that
-    values in later files will override those in earlier files:
-
-        1. ``/etc/zeff.conf``
-        2. ``${HOME}/.config/zeff/zeff.conf``
-        3. ``${PWD}/zeff.conf``
-
-    Variable substitution is available where a variable is of the form
-    ``${section:option}``. If section is omitted then the current section
-    will be used and then from the default section. In the default
-    section there are some pre-defined values:
-
-        ``${HOME}``
-            Home directory of the user.
-
-        ``${PWD}``
-            The current working directory the application was started in.
-    """
-    config = ConfigParser(
-        strict=True,
-        allow_no_value=False,
-        delimiters=["="],
-        comment_prefixes=["#"],
-        interpolation=ExtendedInterpolation(),
-        defaults={"HOME": pathlib.Path.home(), "PWD": pathlib.Path.cwd()},
-    )
-    try:
-        config.read(
-            [
-                pathlib.Path(__file__).parent / "configuration_default.conf",
-                pathlib.Path("/etc/zeff.conf"),
-                pathlib.Path.home() / ".config" / "zeff" / "zeff.conf",
-                pathlib.Path.cwd() / "zeff.conf",
-            ]
-        )
-    except ParsingError as err:
-        sys.exit(err)
-    return config
 
 
 def parse_commandline(args=None, config=None):
