@@ -7,18 +7,18 @@ def subparser_server(parser, config):
 
     parser.add_argument(
         "--server-url",
-        default=config["server"]["server_url"],
-        help=f"""Zeff Cloud REST server URL (default: `{config["server"]["server_url"]}`).""",
+        default=config.server.server_url,
+        help=f"""Zeff Cloud REST server URL (default: `{config.server.server_url}`).""",
     )
     parser.add_argument(
         "--org-id",
-        default=config["server"]["org_id"],
+        default=config.server.org_id,
         help="""Organization id for access to Zeff Cloud (default: ``org_id``
             in configuration).""",
     )
     parser.add_argument(
         "--user-id",
-        default=config["server"]["user_id"],
+        default=config.server.user_id,
         help="""user id for access to Zeff Cloud (default: ``user_id`` in
             configuration).""",
     )

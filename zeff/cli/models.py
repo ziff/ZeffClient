@@ -18,7 +18,7 @@ def models_subparser(subparsers, config):
     parser = subparsers.add_parser("models", help="""Manage dataset models.""")
     parser.add_argument(
         "--records-datasetid",
-        default=config["records"]["datasetid"],
+        default=config.records.datasetid,
         help="""Dataset id for set of models to manage.""",
     )
     subparser_server(parser, config)

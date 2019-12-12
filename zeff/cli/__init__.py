@@ -85,6 +85,7 @@ __docformat__ = "reStructuredText en"
 
 
 import sys
+import errno
 import pathlib
 from configparser import ConfigParser, ExtendedInterpolation, ParsingError
 import argparse
@@ -98,7 +99,6 @@ from .upload import *
 from .train import *
 from .predict import *
 from .record_builders import *
-
 
 
 def parse_commandline(args=None, config=None):
@@ -116,6 +116,9 @@ def parse_commandline(args=None, config=None):
         determined from ``config`` and then command line
         arguments.
     """
+
+    # pylint: disable=broad-except
+
     if config is None:
         config = load_configuration()
     package = pathlib.PurePosixPath(__file__).parent
@@ -144,7 +147,12 @@ def parse_commandline(args=None, config=None):
     train_subparser(subparsers, config)
     predict_subparser(subparsers, config)
 
-    options = parser.parse_args(args=args)
+    try:
+        options = parser.parse_args(args=args)
+    except Exception as err:
+        print("Error:", err, file=sys.stderr)
+        sys.exit(errno.EINVAL)
+    config.update(options)
     options.configuration = config
     if not hasattr(options, "func"):
         parser.print_help()

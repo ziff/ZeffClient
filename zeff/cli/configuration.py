@@ -3,8 +3,11 @@ __docformat__ = "reStructuredText en"
 __all__ = ["Configuration", "load_configuration"]
 
 
+import sys
+import errno
 import dataclasses
 import pathlib
+import importlib
 from configparser import ConfigParser, ExtendedInterpolation, ParsingError
 
 
@@ -20,6 +23,12 @@ class Server:
         self.server_url = config.get("server", "server_url")
         self.org_id = config.get("server", "org_id")
         self.user_id = config.get("server", "user_id")
+
+    def update(self, options):
+        """Update configuration from command line options."""
+        self.server_url = getattr(options, "server_url", self.server_url)
+        self.org_id = getattr(options, "org_id", self.org_id)
+        self.user_id = getattr(options, "user_id", self.user_id)
 
 
 @dataclasses.dataclass(init=False)
@@ -42,6 +51,23 @@ class Records:
         self.record_builder = get_mclass(config, "records", "record_builder")
         self.record_builder_arg = config.get("records", "record_builder_arg")
         self.record_validator = get_mclass(config, "records", "record_validator")
+
+    def update(self, options):
+        """Update configuration from command line options."""
+        self.datasetid = getattr(options, "datasetid", self.datasetid)
+        self.records_config_generator = getattr(
+            options, "records_config_generator", self.records_config_generator
+        )
+        self.records_config_arg = getattr(
+            options, "records_config_arg", self.records_config_arg
+        )
+        self.record_builder = getattr(options, "record_builder", self.record_builder)
+        self.record_builder_arg = getattr(
+            options, "record_builder_arg", self.record_builder_arg
+        )
+        self.record_validator = getattr(
+            options, "record_validator", self.record_validator
+        )
 
 
 @dataclasses.dataclass(init=False)
@@ -77,8 +103,14 @@ class Configuration:
     records: Records
 
     def __init__(self, config):
+        """Create a configuration object from a ConfigParser object."""
         self.server = Server(config)
         self.records = Records(config)
+
+    def update(self, options):
+        """Update configuration from command line options."""
+        self.server.update(options)
+        self.records.update(options)
 
 
 def load_configuration() -> Configuration:
@@ -109,7 +141,7 @@ def load_configuration() -> Configuration:
         delimiters=["="],
         comment_prefixes=["#"],
         interpolation=ExtendedInterpolation(),
-        defaults={"HOME": pathlib.Path.home(), "PWD": pathlib.Path.cwd()},
+        defaults={"HOME": str(pathlib.Path.home()), "PWD": str(pathlib.Path.cwd())},
     )
     try:
         config.read(
@@ -128,9 +160,12 @@ def load_configuration() -> Configuration:
 
 def get_mclass(config, section, option):
     """Return class object for given option."""
-    import importlib
 
     path = config.get(section, option)
+    if not path:
+        return None
+    if isinstance(path, type):
+        return path
     # logging.debug("Look for `%s`", path)
     try:
         m_name, c_name = path.rsplit(".", 1)
@@ -139,7 +174,7 @@ def get_mclass(config, section, option):
         return getattr(module, c_name)
     except ValueError:
         print(
-            f"Required value for [{section}]{option} missing or incorrect format.",
+            f"Required value for [{section}]{option} missing or incorrect format: ``{path}``.",
             file=sys.stderr,
         )
         sys.exit(errno.EINVAL)

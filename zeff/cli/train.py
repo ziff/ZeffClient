@@ -19,7 +19,7 @@ def train_subparser(subparsers, config):
     parser = subparsers.add_parser("train", help="""Control training sessions.""")
     parser.add_argument(
         "--records-datasetid",
-        default=config["records"]["datasetid"],
+        default=config.records.datasetid,
         help="""Dataset id to access for training.""",
     )
     subparser_server(parser, config)

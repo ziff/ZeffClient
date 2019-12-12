@@ -35,4 +35,5 @@ class Record:
     )
 
     def __str__(self):
+        """`__str__<https://docs.python.org/3/reference/datamodel.html#object.__str__>`_."""
         return self.name
