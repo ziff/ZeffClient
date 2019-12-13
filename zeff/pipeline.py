@@ -7,7 +7,7 @@ import logging
 LOGGER_BUILDER = logging.getLogger("zeffclient.record.builder")
 LOGGER_GENERATOR = logging.getLogger("zeffclient.record.generator")
 LOGGER_VALIDATOR = logging.getLogger("zeffclient.record.validator")
-LOGGER_SUBMITTER = logging.getLogger("zeffclient.record.submitter")
+LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
 
 class Counter:
@@ -56,13 +56,9 @@ def validation_generator(upstream, validator):
     """
     for record in upstream:
         try:
-            LOGGER_VALIDATOR.info("Begin validation record %s", record.name)
             validator(record)
-            LOGGER_VALIDATOR.info("End validation record %s", record.name)
             yield record
         except TypeError as err:
-            LOGGER_VALIDATOR.exception(err, record=record)
-            continue
+            LOGGER_VALIDATOR.error(err)
         except ValueError as err:
-            LOGGER_VALIDATOR.exception(err, record=record)
-            continue
+            LOGGER_VALIDATOR.error(err)

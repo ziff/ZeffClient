@@ -4,7 +4,7 @@ __all__ = ["Configuration", "load_configuration"]
 
 
 import sys
-import errno
+import logging
 import dataclasses
 import pathlib
 import importlib
@@ -173,20 +173,21 @@ def get_mclass(config, section, option):
         # logging.debug("Found module `%s`", m_name)
         return getattr(module, c_name)
     except ValueError:
-        print(
-            f"Required value for [{section}]{option} missing or incorrect format: ``{path}``.",
-            file=sys.stderr,
+        logging.debug(
+            "Required value for [%s]%s missing or incorrect format: ``%s``.",
+            section,
+            option,
+            path,
         )
-        sys.exit(errno.EINVAL)
     except ModuleNotFoundError:
-        print(
-            f"[{section}]{option} module `{m_name}` not found in PYTHONPATH={sys.path}",
-            file=sys.stderr,
+        logging.debug(
+            "[%s]%s module `%s` not found in PYTHONPATH=%s",
+            section,
+            option,
+            m_name,
+            sys.path,
         )
-        sys.exit(errno.EINVAL)
     except AttributeError:
-        print(
-            f"[{section}]{option} class `{c_name}` not found in {m_name}",
-            file=sys.stderr,
+        logging.debug(
+            "[%s]%s class `%s` not found in %s", section, option, c_name, m_name
         )
-        sys.exit(errno.EINVAL)

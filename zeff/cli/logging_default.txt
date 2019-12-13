@@ -5,10 +5,10 @@
         'handlers': ['console']
     },
     'loggers': {
-        'zeffclient.record.builder': {
+        'zeffclient.record.generator': {
             'level': 'DEBUG',
         },
-        'zeffclient.record.generator': {
+        'zeffclient.record.builder': {
             'level': 'DEBUG',
         },
         'zeffclient.record.validator': {

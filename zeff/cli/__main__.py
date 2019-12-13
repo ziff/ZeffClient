@@ -18,9 +18,13 @@ def main(args=None):
 
     import traceback
     import errno
+    import pathlib
     import logging
     import zeff.cli
 
+    cwd = str(pathlib.Path.cwd())
+    if cwd not in sys.path:
+        sys.path.append(cwd)
     options = zeff.cli.parse_commandline(args=args)
 
     try:

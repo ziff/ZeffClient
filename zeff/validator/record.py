@@ -33,7 +33,8 @@ class RecordValidator:
         """Initialize a new record validator.
 
         :param model: Will this record be added to a dataset model or to
-            a dataset.
+            a dataset. A dataset is used to train and a model is used
+            to make inference.
 
         :param logger: A ``logging.Logger`` instance to assign to this
             validator. The default is ``zeffclient.record.validator``.
@@ -71,14 +72,24 @@ class RecordValidator:
         """
         self.logger.info("Begin validating record %s", record.name)
         self.reset()
-        self.validate_properties(record)
-        self.validate_structured_data_aggregation(
-            (d.name for d in record.structured_data)
-        )
-        for sdata in record.structured_data:
-            self.validate_structured_data(sdata)
-        for udata in record.unstructured_data:
-            self.validate_unstructured_data(udata)
+        try:
+            self.validate_properties(record)
+            self.validate_structured_data_aggregation(
+                (d.name for d in record.structured_data)
+            )
+            for sdata in record.structured_data:
+                self.validate_structured_data(sdata)
+            if len(record.unstructured_data) < 1:
+                raise ValueError(
+                    "Record must have at least one UnstructuredData object."
+                )
+            for udata in record.unstructured_data:
+                self.validate_unstructured_data(udata)
+            self.validate_record(record)
+        except TypeError as err:
+            raise TypeError(f"Record {record.name}: {err}")
+        except ValueError as err:
+            raise ValueError(f"Record {record.name}: {err}")
         self.logger.info("End validating record %s", record.name)
 
     def reset(self):
@@ -86,6 +97,14 @@ class RecordValidator:
 
         Subclasses must override this method if any state is stored in
         the validator object.
+        """
+
+    def validate_record(self, record: Record):
+        """Validate the entire record.
+
+        This is called last in the validation process, so anything that
+        would require all data items to be validated first should be
+        checked here.
         """
 
     def validate_properties(self, record: Record):

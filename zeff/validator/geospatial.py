@@ -4,15 +4,10 @@ __all__ = ["RecordGeospatialValidator"]
 
 
 import typing
-from .record import RecordValidator
-
-# from ..record import (
-#     StructuredData,
-#     UnstructuredData,
-# )
+from .generic import RecordGenericValidator
 
 
-class RecordGeospatialValidator(RecordValidator):
+class RecordGeospatialValidator(RecordGenericValidator):
     """Zeff Geospatial Record Validator.
 
     This validator will check that required items are in a geospatial

@@ -2,8 +2,6 @@
 __docformat__ = "reStructuredText en"
 __all__ = ["upload_subparser"]
 
-import sys
-from pathlib import Path
 import logging
 import zeff
 import zeff.record
@@ -32,11 +30,18 @@ def upload_subparser(subparsers, config):
 
 def upload(options):
     """Generate a set of records from options."""
-    sys.path.append(str(Path.cwd()))
+    logger = logging.getLogger("zeffclient.record.uploader")
+    logger.info("Build upload pipeline")
     counter, records = build_pipeline(options, zeff.Uploader)
+    logger.info("Upload pipeline starts")
     for record in records:
-        logging.debug(record)
+        logger.info("Record Count %d", counter.count)
+        logger.debug(record)
+    logger.info("Upload pipeline completes")
+    logging.info("Records uploaded %d", counter.count)
     if counter.count == 0 and not options.no_train:
-        logging.debug("All records uploaded, start training.")
+        logger.info("Start training the model")
+        logger.debug("All records uploaded, start training.")
         trainer = Trainer(options)
         trainer.start()
+    logger.info("Upload process completes")

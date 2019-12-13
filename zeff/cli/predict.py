@@ -3,7 +3,6 @@ __docformat__ = "reStructuredText en"
 __all__ = ["predict_subparser"]
 
 import sys
-from pathlib import Path
 from time import sleep
 import datetime
 import zeff
@@ -32,7 +31,6 @@ def predict_subparser(subparsers, config):
 
 def predict(options):
     """Generate a set of records from options."""
-    sys.path.append(str(Path.cwd()))
     now = datetime.datetime.utcnow()
     try:
         _, records = build_pipeline(options, zeff.Predictor, options.model_version)

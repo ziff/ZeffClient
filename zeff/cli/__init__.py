@@ -117,8 +117,6 @@ def parse_commandline(args=None, config=None):
         arguments.
     """
 
-    # pylint: disable=broad-except
-
     if config is None:
         config = load_configuration()
     package = pathlib.PurePosixPath(__file__).parent
@@ -147,11 +145,7 @@ def parse_commandline(args=None, config=None):
     train_subparser(subparsers, config)
     predict_subparser(subparsers, config)
 
-    try:
-        options = parser.parse_args(args=args)
-    except Exception as err:
-        print("Error:", err, file=sys.stderr)
-        sys.exit(errno.EINVAL)
+    options = parser.parse_args(args=args)
     config.update(options)
     options.configuration = config
     if not hasattr(options, "func"):

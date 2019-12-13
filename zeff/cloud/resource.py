@@ -114,7 +114,7 @@ class Resource:
         )
         if resp.status_code not in [200, 201]:
             raise ZeffCloudException(
-                resp, type(self), rsrc_name, f"add {rsrc.__name__}"
+                resp, type(self), rsrc_name, f"add {type(rsrc).__name__}"
             )
         data = resp.json()["data"][0]
         LOGGER.info(

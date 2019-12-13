@@ -97,7 +97,7 @@ def build_pipeline(options, zeffcloud, *args, **kwargs):
 
     record_validator = config.records.record_validator
     logging.debug("Found record-validator: %s", record_validator)
-    generator = zeff.validation_generator(generator, record_validator)
+    generator = zeff.validation_generator(generator, record_validator(False))
     if options.dry_run == "validate":
         return counter, generator
 
