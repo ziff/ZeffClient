@@ -7,8 +7,9 @@ Subpackages
 .. toctree::
 
    zeff.cli
-   zeff.record
    zeff.recordgenerator
+   zeff.record
+   zeff.validator
    zeff.cloud
 
 Submodules
