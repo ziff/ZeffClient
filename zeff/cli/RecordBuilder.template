@@ -3,6 +3,7 @@
 __version__ = "0.0"
 
 import logging
+import typing
 from zeff.record import *
 
 LOGGER = logging.getLogger("zeffclient.record.builder")
@@ -11,15 +12,22 @@ LOGGER = logging.getLogger("zeffclient.record.builder")
 class ${c_name}():
     """Record builder for ${name} records.
 
-    The callable object has a single `config` parameter that the record
-    builder understands. This could be a URL, a unique number that is
-    a primary key in the database, or a full configuration file.
+    :param arg: A single string argument set in the zeff.conf file. This
+        string may be anything the builder understands (e.g. a URL,
+        unique number, full configuration file, etc.).
     """
 
-    def __init__(self, arg: str):
+    def __init__(self, model: bool, arg: str):
         pass
 
-    def __call__(self, config: str) -> Record:
+    def __call__(self, model: bool, config: str) -> typing.Optional[Record]:
+        """Build and return a record.
+
+        :param model: Flag to indicate if the record builder is building
+            records for training or for prediction. If model is true then
+            it is for prediction, but if false then it is for training and
+            any records not to be used for training should be filtered.
+        """
         LOGGER.info("Begin building ``${name}`` record from %s", config)
         record = Record(name="example")
         # Your record build code goes here

@@ -3,6 +3,7 @@
 __version__ = "0.0"
 
 import logging
+import typing
 import sqlite3
 from zeff.record import *
 
@@ -21,7 +22,7 @@ class HousePriceRecordBuilder:
         self.conn = sqlite3.connect("db.sqlite3")
         self.conn.row_factory = sqlite3.Row
 
-    def __call__(self, config: str) -> Record:
+    def __call__(self, model: bool, config: str) -> typing.Optional[Record]:
         LOGGER.info("Begin building ``HousePrice`` record from %s", config)
         record = Record(name=config)
         self.add_structured_data(record, config)

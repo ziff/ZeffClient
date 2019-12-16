@@ -23,12 +23,17 @@ class RecordGenericValidator(RecordValidator):
 
     def validate_record(self, record: Record):
         """See RecordValidator.validate_record."""
-        if not self.model and len(record.structured_data) < 1:
-            raise ValueError(
-                "Dataset record must have at least one StructuredData item."
-            )
-        if not self.has_target:
-            raise ValueError("Record must have a target StructuredData item.")
+        if self.model:
+            pass
+        else:
+            if len(record.structured_data) < 1:
+                raise ValueError(
+                    "Dataset record must have at least one StructuredData item."
+                )
+            if self.has_target:
+                raise ValueError(
+                    "Record for dataset must have a target StructuredData item."
+                )
 
     def validate_structured_data(self, data: StructuredData):
         """See RecordValidator.validate_structured_data."""

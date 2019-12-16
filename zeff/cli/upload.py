@@ -32,7 +32,7 @@ def upload(options):
     """Generate a set of records from options."""
     logger = logging.getLogger("zeffclient.record.uploader")
     logger.info("Build upload pipeline")
-    counter, records = build_pipeline(options, zeff.Uploader)
+    counter, records = build_pipeline(options, False, zeff.Uploader)
     logger.info("Upload pipeline starts")
     for record in records:
         logger.info("Record Count %d", counter.count)

@@ -4,8 +4,8 @@ __all__ = ["Counter", "record_builder_generator", "validation_generator"]
 
 import logging
 
-LOGGER_BUILDER = logging.getLogger("zeffclient.record.builder")
 LOGGER_GENERATOR = logging.getLogger("zeffclient.record.generator")
+LOGGER_BUILDER = logging.getLogger("zeffclient.record.builder")
 LOGGER_VALIDATOR = logging.getLogger("zeffclient.record.validator")
 LOGGER_UPLOADER = logging.getLogger("zeffclient.record.uploader")
 
@@ -29,8 +29,11 @@ class Counter:
         return ret
 
 
-def record_builder_generator(upstream, builder):
+def record_builder_generator(model, upstream, builder):
     """Build and yield records from a configuration upstream.
+
+    :param model: If true then all records will be allowed, but if
+        false then records not used for training will be filtered.
 
     :param upstream: The object that will generate configuration
        strings used to build a record.
@@ -39,7 +42,9 @@ def record_builder_generator(upstream, builder):
        string and return a record.
     """
     for config in upstream:
-        record = builder(config)
+        record = builder(model, config)
+        if record is None:
+            continue
         yield record
 
 

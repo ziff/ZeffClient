@@ -3,8 +3,10 @@ __docformat__ = "reStructuredText en"
 __all__ = ["predict_subparser"]
 
 import sys
+import logging
 from time import sleep
-import datetime
+
+# import datetime
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
@@ -31,12 +33,17 @@ def predict_subparser(subparsers, config):
 
 def predict(options):
     """Generate a set of records from options."""
-    now = datetime.datetime.utcnow()
+    logger = logging.getLogger("zeffclient.record.uploader")
+    logger.info("Build prediction pipeline")
+    # now = datetime.datetime.utcnow()
     try:
-        _, records = build_pipeline(options, zeff.Predictor, options.model_version)
+        _, records = build_pipeline(
+            options, True, zeff.Predictor, options.model_version
+        )
     except zeff.cloud.exception.ZeffCloudModelException as err:
         print(err, file=sys.stderr)
         sys.exit(1)
+    logger.info("Prediction pipeline starts")
     records = list(records)
     backoff = 1.0
     cutoff = 64.0
@@ -44,10 +51,16 @@ def predict(options):
         sleep(backoff)
         backoff = backoff * 2
         for record in list(records):
-            if record.updated_timestamp > now:
-                records.remove(record)
-                print(record)
+            # Need to only look at records that has an updated result
+            # if record.updated_timestamp > now:
+            #     records.remove(record)
+            #     print(record)
+            records.remove(record)
+            print(record)
+    logger.info("Prediction pipeline completes")
     for record in records:
-        print(
-            "Predictions not complete {record.record_id} in dataset {record.dataset_id}"
+        logger.warning(
+            "Predictions not complete %s in dataset %s",
+            record.record_id,
+            record.dataset_id,
         )

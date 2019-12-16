@@ -59,10 +59,14 @@ def subparser_pipeline(parser, config):
     )
 
 
-def build_pipeline(options, zeffcloud, *args, **kwargs):
+def build_pipeline(options, model, zeffcloud, *args, **kwargs):
     """Build a record upload pipeline based on CLI options.
 
     :param options: Command line options.
+
+    :param model: The pipeline is for a model record versus a dataset
+        record. A model record is used for prediction, and a dataset
+        record is used for training.
 
     :param zeffcloud: An upload generator that takes a record builder
         generator as the first parameter.
@@ -90,14 +94,14 @@ def build_pipeline(options, zeffcloud, *args, **kwargs):
     record_builder = options.configuration.records.record_builder
     logging.debug("Found record-builder: %s", record_builder)
     generator = zeff.record_builder_generator(
-        generator, record_builder(config.records.record_builder_arg)
+        model, generator, record_builder(config.records.record_builder_arg)
     )
     if options.dry_run == "build":
         return counter, generator
 
     record_validator = config.records.record_validator
     logging.debug("Found record-validator: %s", record_validator)
-    generator = zeff.validation_generator(generator, record_validator(False))
+    generator = zeff.validation_generator(generator, record_validator(model))
     if options.dry_run == "validate":
         return counter, generator
 
