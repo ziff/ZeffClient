@@ -4,6 +4,7 @@ __docformat__ = "reStructuredText en"
 import re
 import dataclasses
 from typing import List, Dict
+from pathlib import Path
 import urllib.parse
 import yaml
 
@@ -58,7 +59,6 @@ class ZeffCloudResourceMap(dict):
     @classmethod
     def default_info(cls):
         """Return the default zeffcloud YAML configuration file."""
-        from pathlib import Path
 
         dpath = Path(__file__).parent
         path = dpath / "zeffcloud.yml"

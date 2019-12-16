@@ -4,6 +4,8 @@ __all__ = ["train_subparser"]
 
 import sys
 import errno
+from time import sleep
+from tqdm import tqdm
 from zeff.zeffcloud import ZeffCloudResourceMap
 from zeff.cloud.dataset import Dataset
 from zeff.cloud.training import TrainingStatus
@@ -77,8 +79,6 @@ class Trainer:
 
     def status(self):
         """Print current status to stream."""
-        from tqdm import tqdm
-        from time import sleep
 
         def tstamp():
             return f"{tstate.updated_timestamp.strftime('%c')}"

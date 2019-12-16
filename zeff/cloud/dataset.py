@@ -6,6 +6,8 @@ import json
 from typing import Iterator
 from ..zeffdatasettype import ZeffDatasetType
 from .exception import ZeffCloudException
+from .model import Model
+from .record import Record
 from .resource import Resource
 from .training import TrainingSessionInfo
 
@@ -77,7 +79,6 @@ class Dataset(Resource):
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
-        from .model import Model
 
         tag = self.dataset_type.models_list_tag
         resp = self.request(tag, dataset_id=self.dataset_id)
@@ -90,7 +91,6 @@ class Dataset(Resource):
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
-        from .record import Record
 
         tag = self.dataset_type.records_list_tag
         resp = self.request(tag, dataset_id=self.dataset_id)
@@ -105,7 +105,6 @@ class Dataset(Resource):
 
         :raises ZeffCloudException: Exception in communication with Zeff Cloud.
         """
-        from .record import Record
 
         tag = self.dataset_type.record_add_tag
         data = self.add_resource(record, record.name, "recordId", tag)
