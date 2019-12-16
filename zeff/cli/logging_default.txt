@@ -2,43 +2,85 @@
     'version': 1,
     'root': {
         'level': 'INFO',
-        'handlers': ['console']
+        'handlers': ['console', 'master']
     },
     'loggers': {
         'zeffclient.record.generator': {
             'level': 'DEBUG',
+			'propagate': False,
+			'handlers': ['console', 'master', 'generator'],
         },
         'zeffclient.record.builder': {
             'level': 'DEBUG',
+			'propagate': False,
+			'handlers': ['console', 'master', 'builder'],
         },
         'zeffclient.record.validator': {
             'level': 'DEBUG',
+			'propagate': False,
+			'handlers': ['console', 'master', 'validator'],
         },
         'zeffclient.record.uploader': {
             'level': 'DEBUG',
+			'propagate': False,
+			'handlers': ['console', 'master', 'uploader'],
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'stream': 'ext://sys.stdout',
-            'formatter': 'precise'
+            'formatter': 'brief'
         },
+		'master': {
+		    'class': 'logging.FileHandler',
+			'level': 'DEBUG',
+			'formatter': 'precise',
+			'filename': 'master.log',
+		},
+		'generator': {
+		    'class': 'logging.FileHandler',
+			'level': 'DEBUG',
+			'formatter': 'precise',
+			'filename': 'generator.log',
+		},
+		'builder': {
+		    'class': 'logging.FileHandler',
+			'level': 'DEBUG',
+			'formatter': 'precise',
+			'filename': 'builder.log',
+		},
+		'validator': {
+		    'class': 'logging.FileHandler',
+			'level': 'DEBUG',
+			'formatter': 'precise',
+			'filename': 'validator.log',
+		},
+		'uploader': {
+		    'class': 'logging.FileHandler',
+			'level': 'DEBUG',
+			'formatter': 'precise',
+			'filename': 'uploader.log',
+		},
     },
     'formatters': {
+        'brief': {
+			'style': '{',
+            'format': '{levelname:8s} {name:28s} {message:s}',
+        },
         'precise': {
-            'format':
-            '%(asctime)s %(processName)s %(name)-28s %(levelname)-8s [%(lineno)03d]%(module)-24s %(message)s',
+			'style': '%',
+            'format': '%(asctime)s %(processName)s %(name)-28s %(levelname)-8s [%(lineno)03d]%(module)-24s %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
-        'brief': {
-            'format':
-            '%(processName)s:%(name)s:%(levelname)s:%(module)s.%(funcName)s:%(message)s'
-        },
+		'concise': {
+			'style': '%',
+			'format': '%(processName)s:%(name)s:%(levelname)s:%(module)s.%(funcName)s:%(message)s'
+		},
         'default': {
-            'format':
-            '%(asctime)s %(processName)s %(name)-8s %(levelname)-8s %(message)s',
+			'style': '%',
+            'format': '%(asctime)s %(processName)s %(name)-8s %(levelname)-8s %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         }
     },

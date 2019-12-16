@@ -22,29 +22,12 @@ def main(args=None):
     import logging
     import zeff.cli
 
+    zeff.cli.configure_logging()
+
     cwd = str(pathlib.Path.cwd())
     if cwd not in sys.path:
         sys.path.append(cwd)
     options = zeff.cli.parse_commandline(args=args)
-
-    try:
-        import ast
-        from logging import config
-
-        with open(options.logging_conf, "r") as file:
-            log_dict = ast.literal_eval(file.read())
-            config.dictConfig(log_dict)
-        logging.getLogger().setLevel(options.verbose.upper())
-    except Exception as err:
-        if options.verbose == "debug":
-            traceback.print_exception(
-                err.__class__, err, err.__traceback__, file=sys.stderr
-            )
-        else:
-            print(
-                "Unhandled exception while configuring logging:", err, file=sys.stderr
-            )
-        sys.exit(1)
 
     try:
         logging.info("Starting with options %s", options)

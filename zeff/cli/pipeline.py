@@ -5,7 +5,7 @@ import logging
 import zeff
 import zeff.record
 from .server import subparser_server
-from .actions import NamedClassObjectAction
+from .actions import NamedClassObjectAction, NamedCallableObjectAction
 
 
 def subparser_pipeline(parser, config):
@@ -18,7 +18,7 @@ def subparser_pipeline(parser, config):
     )
     parser.add_argument(
         "--records-config-generator",
-        action=NamedClassObjectAction,
+        action=NamedCallableObjectAction,
         default=config.records.records_config_generator,
         help=f"""Name of python class that will generate URLs to record
             sources (default: `%(default)s`)""",
