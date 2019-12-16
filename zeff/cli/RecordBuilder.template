@@ -3,7 +3,7 @@
 __version__ = "0.0"
 
 import logging
-import typing
+from typing import Optional
 from zeff.record import *
 
 LOGGER = logging.getLogger("zeffclient.record.builder")
@@ -20,7 +20,7 @@ class ${c_name}():
     def __init__(self, model: bool, arg: str):
         pass
 
-    def __call__(self, model: bool, config: str) -> typing.Optional[Record]:
+    def __call__(self, model: bool, config: str) -> Optional[Record]:
         """Build and return a record.
 
         :param model: Flag to indicate if the record builder is building

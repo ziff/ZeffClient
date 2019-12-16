@@ -3,6 +3,7 @@
 __version__ = "0.0"
 
 import logging
+from typing import Optional
 import sqlite3
 from zeff.record import *
 
@@ -12,24 +13,35 @@ LOGGER = logging.getLogger("zeffclient.record.builder")
 class HousePriceRecordBuilder:
     """Record builder for HousePrice records.
 
-    The callable object has a single `config` parameter that the record
-    builder understands. This could be a URL, a unique number that is
-    a primary key in the database, or a full configuration file.
+    :param arg: A single string argument set in the zeff.conf file. This
+        string may be anything the builder understands (e.g. a URL,
+        unique number, full configuration file, etc.).
     """
 
     def __init__(self, arg: str):
         self.conn = sqlite3.connect(arg)
         self.conn.row_factory = sqlite3.Row
 
-    def __call__(self, config: str) -> Record:
+    def __call__(self, model: bool, config: str) -> Optional[Record]:
+        """Build and return a record.
+
+        :param model: Flag to indicate if the record builder is building
+            records for training or for prediction. If model is true then
+            it is for prediction, but if false then it is for training and
+            any records not to be used for training should be filtered.
+        """
         LOGGER.info("Begin building ``HousePrice`` record from %s", config)
         record = Record(name=config)
-        self.add_structured_data(record, config)
+        target = self.add_structured_data(record, config)
+        if not model and not target:
+            return None
         self.add_unstructured_data(record, config)
         LOGGER.info("End building ``HousePrice`` record from %s", config)
         return record
 
     def add_structured_data(self, record, id):
+        target_record = False
+
         # Select all the properties from the database for the record
         sql = f"SELECT * FROM properties WHERE id={id}"
         cursor = self.conn.cursor()
@@ -49,13 +61,21 @@ class HousePriceRecordBuilder:
             else:
                 dtype = StructuredData.DataType.CATEGORY
 
+            # Is this a target field
+            if key in ["estimate_mortgage"] and value is not None:
+                target = Target.YES
+                target_record = True
+            else:
+                target = Target.NO
+
             # Create the structured data item and add it to the
             # structured data object
-            sd = StructuredData(name=key, value=value, data_type=dtype)
+            sd = StructuredData(name=key, value=value, data_type=dtype, target=target)
             sd.record = record
 
         # Clean up then add the structured data object to the record
         cursor.close()
+        return target_record
 
     def add_unstructured_data(self, record, id):
         # Select all the property imaages for the record
@@ -96,16 +116,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
+    parser.add_argument(
+        "recordtype",
+        choices=["model", "dataset"],
+        help="What type of record should be created.",
+    )
     parser.add_argument("config", help="Configuration to build HousePrice record")
     options = parser.parse_args()
     config = load_configuration()
-
     try:
-        builderarg = config["records"]["record_builder_arg"]
+        builderarg = config.records.record_builder_arg
         builder = HousePriceRecordBuilder(builderarg)
-        record = builder(options.config)
-        record.validate()
-        format_record_restructuredtext(record, out=sys.stdout)
+        record = builder((options.recordtype == "model"), options.config)
+        if options.recordtype == "model" and record == None:
+            print("Record is not a training record.")
+        else:
+            validator = config.records.record_validator((options.recordtype == "model"))
+            validator(record)
+            format_record_restructuredtext(record, out=sys.stdout)
     except TypeError as err:
         logging.error(f"Record Validation Failed {err}")
         sys.exit(1)
