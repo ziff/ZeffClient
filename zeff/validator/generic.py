@@ -30,7 +30,7 @@ class RecordGenericValidator(RecordValidator):
                 raise ValueError(
                     "Dataset record must have at least one StructuredData item."
                 )
-            if self.has_target:
+            if not self.has_target:
                 raise ValueError(
                     "Record for dataset must have a target StructuredData item."
                 )
