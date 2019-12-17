@@ -6,7 +6,7 @@ import sys
 import logging
 from time import sleep
 
-# import datetime
+import datetime
 import zeff
 import zeff.record
 from .pipeline import subparser_pipeline, build_pipeline
@@ -35,7 +35,7 @@ def predict(options):
     """Generate a set of records from options."""
     logger = logging.getLogger("zeffclient.record.uploader")
     logger.info("Build prediction pipeline")
-    # now = datetime.datetime.utcnow()
+    now = datetime.datetime.utcnow()
     try:
         _, records = build_pipeline(
             options, True, zeff.Predictor, options.model_version
@@ -51,12 +51,16 @@ def predict(options):
         sleep(backoff)
         backoff = backoff * 2
         for record in list(records):
-            # Need to only look at records that has an updated result
-            # if record.updated_timestamp > now:
-            #     records.remove(record)
-            #     print(record)
-            records.remove(record)
-            print(record)
+            if hasattr(record, "updated_timestamp"):
+                # Record is in cloud/Model
+                # Need to only look at records that has an updated result
+                if record.updated_timestamp > now:
+                    records.remove(record)
+                    print(record)
+            else:
+                # Record not added to cloud/Model --- dry-run
+                records.remove(record)
+                print(record)
     logger.info("Prediction pipeline completes")
     for record in records:
         logger.warning(
