@@ -52,8 +52,11 @@ def init_project(options):
     """Initialize a new project in the current directory."""
     try:
         Project(options)()
+    except ValueError as err:
+        print("ERROR:", err, file=sys.stderr)
+        sys.exit(1)
     except ZeffCloudException as err:
-        print(err, file=sys.stderr)
+        print("ERROR:", err, file=sys.stderr)
         sys.exit(errno.EIO)
 
 
@@ -62,36 +65,19 @@ class Project:
 
     def __init__(self, options):
         self.options = options
-        self.optconf = self.options.configuration
-        self.optconf["records"][
-            "record_validator"
-        ] = self.options.dataset_type.validator
-        self.config = ConfigParser(
-            strict=True,
-            allow_no_value=False,
-            delimiters=["="],
-            comment_prefixes=["#"],
-            interpolation=ExtendedInterpolation(),
-        )
-        self.config.read(CONF_PATH)
-        for section in (
-            s for s in self.optconf.sections() if s not in self.config.sections()
-        ):
-            self.config.add_section(section)
+        self.config = self.options.configuration
+        self.record_validator = self.options.dataset_type.validator
 
     def __call__(self):
         self.create_zeff_conf()
-        self.create_dataset()
         self.create_generator()
         self.create_builder()
-
         with open(CONF_PATH, "wt") as fout:
             self.config.write(fout)
 
-        for defk, defv in self.optconf.defaults().items():
-            self.config.set("DEFAULT", defk, defv)
-
-        self.optconf.read_dict(self.config)
+        self.create_dataset()
+        with open(CONF_PATH, "wt") as fout:
+            self.config.write(fout)
 
     def create_zeff_conf(self):
         """Ask user for configuration options and create `zeff.conf`.
@@ -100,18 +86,27 @@ class Project:
         configuration that is in options for use in other init operations.
         """
 
-        def ask_update(section, option, msg, use_variables=False):
-            value = self.optconf.get(section, option, fallback="")
+        defaults = {"HOME": str(Path.home()), "PWD": str(Path.cwd())}
+
+        def ask_update(section_name, option_name, msg, use_variables=False):
+            section = getattr(self.config, section_name)
+            value = getattr(section, option_name, "")
+            if isinstance(value, type):
+                value = f"{value.__module__}.{value.__name__}"
+            elif callable(value):
+                value = f"{value.__module__}.{value.__name__}"
+            else:
+                value = str(value)
             prompt = f"{msg} [{value}]? "
             resp = input(prompt)
             if resp and resp != value:
                 value = resp
                 if use_variables:
-                    for defk, defv in self.optconf.defaults().items():
+                    for defk, defv in defaults.items():
                         scratch = resp.replace(defv, f"${{{defk.upper()}}}")
                         if len(scratch) < len(value):
                             value = scratch
-                self.config.set(section, option, value)
+                setattr(section, option_name, value)
             return value
 
         # Server
@@ -147,46 +142,67 @@ class Project:
             use_variables=True,
         )
 
+        self.config.validate()
+        print()
+
     def create_dataset(self):
         """Create dataset on server and update config file."""
-        if self.options.configuration.get("records", "datasetid") == "":
+        if self.options.configuration.records.datasetid == "":
             datasettype = self.options.dataset_type
-            try:
-                dataset_title = self.config.get("records", "dataset_title")
-                dataset_desc = self.config.get("records", "dataset_desc")
-            except NoOptionError:
-                return
+            dataset_title = self.config.records.dataset_title
+            if not dataset_title:
+                raise ValueError("Creation of a dataset requires a title.")
+            dataset_desc = self.config.records.dataset_desc
+            if not dataset_desc:
+                raise ValueError("Creation of a dataset requires a description.")
             resource_map = ZeffCloudResourceMap(
                 ZeffCloudResourceMap.default_info(),
-                root=self.optconf.get("server", "server_url"),
-                org_id=self.optconf.get("server", "org_id"),
-                user_id=self.optconf.get("server", "user_id"),
+                root=self.config.server.server_url,
+                org_id=self.config.server.org_id,
+                user_id=self.config.server.user_id,
             )
             dataset = Dataset.create_dataset(
                 resource_map, datasettype, dataset_title, dataset_desc
             )
             datasetid = dataset.dataset_id
-            self.config.set("records", "datasetid", datasetid)
+            self.config.records.datasetid, datasetid
 
     def create_generator(self):
         """Create record generator template code."""
         self.create_python_from_template(
-            "records_config_generator", "RecordGenerator", "RecordGenerator.template"
+            self.config.records.records_config_generator,
+            "RecordGenerator",
+            "RecordGenerator.template",
         )
 
     def create_builder(self):
         """Create record builder template code."""
         self.create_python_from_template(
-            "record_builder", "RecordBuilder", "RecordBuilder.template"
+            self.config.records.record_builder,
+            "RecordBuilder",
+            "RecordBuilder.template",
         )
 
-    def create_python_from_template(self, option, name_ext, template_name):
-        """Create a source file from a template."""
-        path = self.config["records"][option]
-        m_name, c_name = path.rsplit(".", 1)
+    def create_python_from_template(self, obj, name_ext, template_name):
+        """Create a source file from a template.
+
+        :param obj: This is either the name of the type or callable to
+            be created, or is the type or callable to be created.
+
+        :param name_ext: String in template file to replace with name of
+            `obj`.
+
+        :param template_name: Name of template file.
+        """
+        if isinstance(obj, str):
+            m_name, c_name = obj.rsplit(".", 1)
+        else:
+            m_name = obj.__module__
+            c_name = obj.__name__
         try:
             module = importlib.import_module(m_name)
             getattr(module, c_name)
+            print(f"Skipping creation of {m_name}.{c_name} it exists in PYTHONPATH.")
             return
         except ModuleNotFoundError:
             pass
@@ -207,3 +223,4 @@ class Project:
         else:
             with open(output_path, "wt") as fout:
                 fout.write(template.safe_substitute(name=name, c_name=c_name))
+            output_path.chmod(0o755)

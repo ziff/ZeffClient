@@ -136,7 +136,6 @@ import logging.config
 import datetime
 import ast
 import pathlib
-from configparser import ConfigParser, ExtendedInterpolation, ParsingError
 import argparse
 
 from zeff import __version__

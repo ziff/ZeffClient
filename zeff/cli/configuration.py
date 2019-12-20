@@ -24,11 +24,23 @@ class Server:
         self.org_id = config.get("server", "org_id")
         self.user_id = config.get("server", "user_id")
 
+    def validate(self):
+        """Validate type and values of properties.
+
+        This may convert properties to correct types (e.g. str to type).
+        """
+
     def update(self, options):
         """Update configuration from command line options."""
         self.server_url = getattr(options, "server_url", self.server_url)
         self.org_id = getattr(options, "org_id", self.org_id)
         self.user_id = getattr(options, "user_id", self.user_id)
+
+    def set_options(self, section):
+        """Set options in the ConfigParser section."""
+        section["server_url"] = self.server_url
+        section["org_id"] = self.org_id
+        section["user_id"] = self.user_id
 
 
 @dataclasses.dataclass(init=False)
@@ -36,21 +48,65 @@ class Records:
     """Records configuration section."""
 
     datasetid: str
+    dataset_title: str
+    dataset_desc: str
     records_config_generator: object
     records_config_arg: str
     record_builder: object
     record_builder_arg: str
-    record_validator: object
+    record_validator: type
 
     def __init__(self, config):
         self.datasetid = config.get("records", "datasetid")
-        self.records_config_generator = get_mclass(
-            config, "records", "records_config_generator"
+        self.dataset_title = config.get("records", "datatset_title", fallback="")
+        self.dataset_desc = config.get("records", "dataset_desc", fallback="")
+        self.records_config_generator = config.get(
+            "records", "records_config_generator"
         )
         self.records_config_arg = config.get("records", "records_config_arg")
-        self.record_builder = get_mclass(config, "records", "record_builder")
+        self.record_builder = config.get("records", "record_builder")
         self.record_builder_arg = config.get("records", "record_builder_arg")
-        self.record_validator = get_mclass(config, "records", "record_validator")
+        self.record_validator = config.get("records", "record_validator")
+
+    def validate(self):
+        """Validate type and values of properties.
+
+        This may convert properties to correct types (e.g. str to type).
+        """
+
+        def convert_mclass(attrname):
+            path = getattr(self, attrname)
+            if not path:
+                return path
+            if not isinstance(path, str):
+                return path
+            try:
+                m_name, c_name = path.rsplit(".", 1)
+                module = importlib.import_module(m_name)
+                # logging.debug("Found module `%s`", m_name)
+                value = getattr(module, c_name)
+                setattr(self, attrname, value)
+            except ValueError:
+                logging.debug(
+                    "Required value for [records]%s missing or incorrect format: ``%s``.",
+                    attrname,
+                    path,
+                )
+            except ModuleNotFoundError:
+                logging.debug(
+                    "[records]%s module `%s` not found in PYTHONPATH=%s",
+                    attrname,
+                    m_name,
+                    sys.path,
+                )
+            except AttributeError:
+                logging.debug(
+                    "[records]%s class `%s` not found in %s", attrname, c_name, m_name
+                )
+
+        convert_mclass("records_config_generator")
+        convert_mclass("record_builder")
+        convert_mclass("record_validator")
 
     def update(self, options):
         """Update configuration from command line options."""
@@ -68,6 +124,19 @@ class Records:
         self.record_validator = getattr(
             options, "record_validator", self.record_validator
         )
+
+    def set_options(self, section):
+        """Set options in the ConfigParser section."""
+
+        def path(obj):
+            return f"{obj.__module__}.{obj.__name__}"
+
+        section["datasetid"] = self.datasetid
+        section["records_config_generator"] = path(self.records_config_generator)
+        section["records_config_arg"] = self.records_config_arg
+        section["record_builder"] = path(self.record_builder)
+        section["record_builder_arg"] = self.record_builder_arg
+        section["record_validator"] = path(self.record_validator)
 
 
 @dataclasses.dataclass(init=False)
@@ -106,11 +175,31 @@ class Configuration:
         """Create a configuration object from a ConfigParser object."""
         self.server = Server(config)
         self.records = Records(config)
+        self.validate()
+
+    def validate(self):
+        """Validate type and values of properties.
+
+        This may convert properties to correct types (e.g. str to type).
+        """
+        self.server.validate()
+        self.records.validate()
 
     def update(self, options):
         """Update configuration from command line options."""
         self.server.update(options)
         self.records.update(options)
+        self.validate()
+
+    def write(self, fp):
+        """Write configuration to file readable by ConfigParser."""
+        self.validate()
+        config = ConfigParser()
+        for field in dataclasses.fields(self):
+            config.add_section(field.name)
+            obj = getattr(self, field.name)
+            obj.set_options(config[field.name])
+        config.write(fp)
 
 
 def load_configuration() -> Configuration:
@@ -156,38 +245,3 @@ def load_configuration() -> Configuration:
         sys.exit(err)
 
     return Configuration(config)
-
-
-def get_mclass(config, section, option):
-    """Return class object for given option."""
-
-    path = config.get(section, option)
-    if not path:
-        return None
-    if isinstance(path, type):
-        return path
-    # logging.debug("Look for `%s`", path)
-    try:
-        m_name, c_name = path.rsplit(".", 1)
-        module = importlib.import_module(m_name)
-        # logging.debug("Found module `%s`", m_name)
-        return getattr(module, c_name)
-    except ValueError:
-        logging.debug(
-            "Required value for [%s]%s missing or incorrect format: ``%s``.",
-            section,
-            option,
-            path,
-        )
-    except ModuleNotFoundError:
-        logging.debug(
-            "[%s]%s module `%s` not found in PYTHONPATH=%s",
-            section,
-            option,
-            m_name,
-            sys.path,
-        )
-    except AttributeError:
-        logging.debug(
-            "[%s]%s class `%s` not found in %s", section, option, c_name, m_name
-        )
