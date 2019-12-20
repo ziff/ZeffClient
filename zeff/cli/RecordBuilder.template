@@ -17,7 +17,7 @@ class ${c_name}():
         unique number, full configuration file, etc.).
     """
 
-    def __init__(self, model: bool, arg: str):
+    def __init__(self, arg: str):
         pass
 
     def __call__(self, model: bool, config: str) -> Optional[Record]:
@@ -27,6 +27,9 @@ class ${c_name}():
             records for training or for prediction. If model is true then
             it is for prediction, but if false then it is for training and
             any records not to be used for training should be filtered.
+
+        :param config: A configuration string that was created by the
+            record configuration generator.
         """
         LOGGER.info("Begin building ``${name}`` record from %s", config)
         record = Record(name="example")
@@ -56,17 +59,21 @@ if __name__ == "__main__":
         version=f"%(prog)s {__version__}"
     )
     parser.add_argument(
-        "config",
-        help="Configuration to build ${name} record"
+        "recordtype",
+        choices=["model", "dataset"],
+        help="What type of record should be created.",
     )
     options = parser.parse_args()
     config = load_configuration()
-
     try:
-        builderarg = config["records"]["record_builder_arg"]
+        builderarg = config.records.record_builder_arg
         builder = ${c_name}(builderarg)
-        record = builder(options.config)
-        record.validate()
+        record = builder((options.recordtype == "model"), options.config)
+        if options.recordtype == "model" and record == None:
+            print("Record is not a training record.")
+        else:
+            validator = config.records.record_validator((options.recordtype == "model"))
+            validator(record)
         format_record_restructuredtext(record, out=sys.stdout)
     except TypeError as err:
         logging.error(f"Record Validation Failed {err}")

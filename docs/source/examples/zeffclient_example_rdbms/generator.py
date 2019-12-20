@@ -30,6 +30,6 @@ if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
     config = load_configuration()
-    generatorarg = config["records"]["records_config_arg"]
+    generatorarg = config.records.records_config_arg
     for config in HousePriceRecordGenerator(generatorarg):
         print(config)

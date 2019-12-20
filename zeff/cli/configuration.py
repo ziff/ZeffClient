@@ -47,6 +47,8 @@ class Server:
 class Records:
     """Records configuration section."""
 
+    # pylint: disable=too-many-instance-attributes
+
     datasetid: str
     dataset_title: str
     dataset_desc: str
@@ -76,10 +78,8 @@ class Records:
 
         def convert_mclass(attrname):
             path = getattr(self, attrname)
-            if not path:
-                return path
-            if not isinstance(path, str):
-                return path
+            if not path or not isinstance(path, str):
+                return
             try:
                 m_name, c_name = path.rsplit(".", 1)
                 module = importlib.import_module(m_name)
@@ -191,7 +191,7 @@ class Configuration:
         self.records.update(options)
         self.validate()
 
-    def write(self, fp):
+    def write(self, filepointer):
         """Write configuration to file readable by ConfigParser."""
         self.validate()
         config = ConfigParser()
@@ -199,7 +199,7 @@ class Configuration:
             config.add_section(field.name)
             obj = getattr(self, field.name)
             obj.set_options(config[field.name])
-        config.write(fp)
+        config.write(filepointer)
 
 
 def load_configuration() -> Configuration:

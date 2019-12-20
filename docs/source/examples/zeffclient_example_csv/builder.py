@@ -30,6 +30,9 @@ class HousePriceRecordBuilder:
             records for training or for prediction. If model is true then
             it is for prediction, but if false then it is for training and
             any records not to be used for training should be filtered.
+
+        :param config: A configuration string that was created by the
+            record configuration generator.
         """
         urlparts = urllib.parse.urlsplit(config)
         path = pathlib.Path(urlparts[2])
@@ -61,9 +64,9 @@ class HousePriceRecordBuilder:
 
             # Is the column a continuous or category datatype
             if isinstance(value, (int, float)):
-                dtype = StructuredData.DataType.CONTINUOUS
+                dtype = DataType.CONTINUOUS
             else:
-                dtype = StructuredData.DataType.CATEGORY
+                dtype = DataType.CATEGORY
 
             # Is this a target field
             if key in ["estimate_mortgage"] and value is not None:
@@ -87,7 +90,7 @@ class HousePriceRecordBuilder:
         # unstructured data, and add it to the record object.
         for p in img_path.glob("**/*.jpeg"):
             url = f"file://{p}"
-            file_type = UnstructuredData.FileType.IMAGE
+            file_type = FileType.IMAGE
             group_by = "home_photo"
             ud = UnstructuredData(url, file_type, group_by=group_by)
             ud.record = record

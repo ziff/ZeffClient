@@ -10,7 +10,7 @@ def ${c_name}(arg: str):
     """Return ${name} configuration string to build record."""
     # Your config generator code goes here
     # The default just returns the configuration argument
-    yield arg
+    yield f"Configuration argument: {arg}"
 
 
 if __name__ == "__main__":
@@ -20,7 +20,6 @@ if __name__ == "__main__":
     basicConfig(level=DEBUG)
 
     config = load_configuration()
-    generatorarg = config["records"]["records_config_arg"]
+    generatorarg = config.records.records_config_arg
     for config in ${c_name}(generatorarg):
         print(config)
-

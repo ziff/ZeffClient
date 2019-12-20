@@ -8,7 +8,6 @@ import argparse
 from string import Template
 from pathlib import Path, PurePath
 import importlib
-from configparser import ConfigParser, ExtendedInterpolation, NoOptionError
 from zeff.zeffdatasettype import ZeffDatasetType
 from zeff.zeffcloud import ZeffCloudResourceMap
 from zeff.cloud import Dataset, ZeffCloudException
@@ -164,8 +163,7 @@ class Project:
             dataset = Dataset.create_dataset(
                 resource_map, datasettype, dataset_title, dataset_desc
             )
-            datasetid = dataset.dataset_id
-            self.config.records.datasetid, datasetid
+            self.config.records.datasetid = dataset.dataset_id
 
     def create_generator(self):
         """Create record generator template code."""
