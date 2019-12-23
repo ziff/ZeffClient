@@ -3,6 +3,8 @@ __docformat__ = "reStructuredText en"
 
 import enum
 import datetime
+import logging
+import json
 
 
 class TrainingStatus(enum.Enum):
@@ -33,12 +35,17 @@ class TrainingSessionInfo:
             status request.
         """
         self.__data = status_json
+        logging.debug("Training Session JSON: \n%s", self.__data_str())
+
+    def __data_str(self):
+        """Return the data as a JSON formatted string."""
+        return json.dumps(self.__data, indent="\t", sort_keys=True)
 
     @property
     def status(self) -> TrainingStatus:
         """Return state of current training session."""
         value = self.__data["status"]
-        return TrainingStatus(value if value is not None else "unknown")
+        return TrainingStatus(value if value is not None else "UNKNOWN")
 
     @property
     def progress(self) -> float:

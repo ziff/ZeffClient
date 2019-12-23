@@ -7,6 +7,7 @@ import errno
 from time import sleep
 from tqdm import tqdm
 from zeff.zeffcloud import ZeffCloudResourceMap
+from zeff.cloud.exception import ZeffCloudException
 from zeff.cloud.dataset import Dataset
 from zeff.cloud.training import TrainingStatus
 from .server import subparser_server
@@ -75,7 +76,11 @@ class Trainer:
         self.resource_map = ZeffCloudResourceMap(
             info, root=self.server_url, org_id=self.org_id, user_id=self.user_id
         )
-        self.dataset = Dataset(self.dataset_id, self.resource_map)
+        try:
+            self.dataset = Dataset(self.dataset_id, self.resource_map)
+        except ZeffCloudException as err:
+            print("Error:", err, file=sys.stderr)
+            sys.exit(errno.ENOENT)
 
     def status(self):
         """Print current status to stream."""
@@ -102,7 +107,9 @@ class Trainer:
             pbar.close()
         else:
             tstate = self.dataset.training_status
-            if tstate.status is TrainingStatus.queued:
+            if tstate.status is TrainingStatus.unknown:
+                print(f"Unknown training status")
+            elif tstate.status is TrainingStatus.queued:
                 print(f"Queued as of {tstamp()}")
             elif tstate.status is TrainingStatus.started:
                 print(f"Started on {tstamp()}")
@@ -113,8 +120,16 @@ class Trainer:
 
     def start(self):
         """Start or restart the current training session."""
-        self.dataset.start_training()
+        try:
+            self.dataset.start_training()
+        except ZeffCloudException as err:
+            print("Error:", err, file=sys.stderr)
+            sys.exit(errno.ENOENT)
 
     def stop(self):
         """Stop the current training session."""
-        self.dataset.stop_training()
+        try:
+            self.dataset.stop_training()
+        except ZeffCloudException as err:
+            print("Error:", err, file=sys.stderr)
+            sys.exit(errno.ENOENT)

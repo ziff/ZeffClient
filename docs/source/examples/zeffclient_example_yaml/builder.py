@@ -50,7 +50,7 @@ class HousePriceRecordBuilder:
         target_record = False
         row = None
         with open(path, "r") as ymlstream:
-            row = [r for r in yaml.load(ymlstream) if r["id"] == id]
+            row = [r for r in yaml.load(ymlstream, Loader=yaml.Loader) if r["id"] == id]
             if len(row) == 0:
                 return
             row = row[0]

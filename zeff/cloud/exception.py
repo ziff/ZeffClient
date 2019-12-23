@@ -29,7 +29,8 @@ class ZeffCloudException(Exception):
         """Return message string for exception."""
         return textwrap.dedent(
             f"""\
-            {self.__resource} {self.__resource_name} load failed {self.__resp.status_code} -
+            {self.__resource.__name__} {self.__resource_name} load failed
+            with HTTP status {self.__resp.status_code} -
             {self.__resp.reason}: {self.__resp.text}
             """
         ).replace("\n", " ")
